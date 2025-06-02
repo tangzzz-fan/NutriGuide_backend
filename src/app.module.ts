@@ -9,6 +9,7 @@ import environmentConfig from './config/environment.config';
 import databaseConfig from './config/database.config';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { FoodModule } from './modules/food/food.module';
 
 @Module({
     imports: [
@@ -36,6 +37,7 @@ import { AuthModule } from './modules/auth/auth.module';
         // Feature modules
         UserModule,
         AuthModule,
+        FoodModule,
     ],
     controllers: [AppController],
     providers: [

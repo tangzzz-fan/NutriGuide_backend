@@ -1,0 +1,338 @@
+[
+    {
+        "name": "苹果",
+        "nameEn": "Apple",
+        "description": "新鲜红苹果，口感爽脆",
+        "category": "fruits",
+        "subcategories": [
+            "红苹果",
+            "时令水果"
+        ],
+        "nutrition": {
+            "calories": 52,
+            "protein": 0.3,
+            "carbohydrates": 14,
+            "fat": 0.2,
+            "fiber": 2.4,
+            "sugar": 10.4,
+            "sodium": 1,
+            "potassium": 107,
+            "vitaminC": 4.6
+        },
+        "commonUnits": [
+            "个",
+            "片",
+            "杯"
+        ],
+        "allergens": [],
+        "dietaryTags": [
+            "素食",
+            "纯素",
+            "无麸质"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "香蕉",
+        "nameEn": "Banana",
+        "description": "成熟香蕉，富含钾元素",
+        "category": "fruits",
+        "subcategories": [
+            "热带水果"
+        ],
+        "nutrition": {
+            "calories": 89,
+            "protein": 1.1,
+            "carbohydrates": 23,
+            "fat": 0.3,
+            "fiber": 2.6,
+            "sugar": 12,
+            "sodium": 1,
+            "potassium": 358,
+            "vitaminC": 8.7
+        },
+        "commonUnits": [
+            "根",
+            "杯"
+        ],
+        "allergens": [],
+        "dietaryTags": [
+            "素食",
+            "纯素",
+            "无麸质"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "大米",
+        "nameEn": "Rice",
+        "description": "优质长粒大米",
+        "category": "grains",
+        "subcategories": [
+            "长粒米",
+            "主食"
+        ],
+        "nutrition": {
+            "calories": 130,
+            "protein": 2.7,
+            "carbohydrates": 28,
+            "fat": 0.3,
+            "fiber": 0.4,
+            "sugar": 0.1,
+            "sodium": 5,
+            "potassium": 55,
+            "iron": 0.8
+        },
+        "commonUnits": [
+            "杯",
+            "碗",
+            "克"
+        ],
+        "allergens": [],
+        "dietaryTags": [
+            "素食",
+            "纯素",
+            "无麸质"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "鸡胸肉",
+        "nameEn": "Chicken Breast",
+        "description": "去皮去骨鸡胸肉",
+        "category": "poultry",
+        "subcategories": [
+            "白肉",
+            "瘦肉"
+        ],
+        "nutrition": {
+            "calories": 165,
+            "protein": 31,
+            "carbohydrates": 0,
+            "fat": 3.6,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 74,
+            "potassium": 256,
+            "iron": 0.7
+        },
+        "commonUnits": [
+            "克",
+            "片",
+            "块"
+        ],
+        "allergens": [],
+        "dietaryTags": [
+            "高蛋白",
+            "低脂"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "西兰花",
+        "nameEn": "Broccoli",
+        "description": "新鲜西兰花，富含维生素C",
+        "category": "vegetables",
+        "subcategories": [
+            "绿色蔬菜",
+            "十字花科"
+        ],
+        "nutrition": {
+            "calories": 34,
+            "protein": 2.8,
+            "carbohydrates": 7,
+            "fat": 0.4,
+            "fiber": 2.6,
+            "sugar": 1.5,
+            "sodium": 33,
+            "potassium": 316,
+            "vitaminC": 89.2,
+            "calcium": 47
+        },
+        "commonUnits": [
+            "杯",
+            "朵",
+            "克"
+        ],
+        "allergens": [],
+        "dietaryTags": [
+            "素食",
+            "纯素",
+            "无麸质",
+            "低卡"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "燕麦",
+        "nameEn": "Oats",
+        "description": "全麦燕麦片",
+        "category": "grains",
+        "subcategories": [
+            "全谷物",
+            "早餐谷物"
+        ],
+        "nutrition": {
+            "calories": 389,
+            "protein": 16.9,
+            "carbohydrates": 66.3,
+            "fat": 6.9,
+            "fiber": 10.6,
+            "sugar": 0.4,
+            "sodium": 2,
+            "potassium": 429,
+            "iron": 4.7,
+            "calcium": 54
+        },
+        "commonUnits": [
+            "杯",
+            "勺",
+            "克"
+        ],
+        "allergens": [
+            "麸质"
+        ],
+        "dietaryTags": [
+            "素食",
+            "高纤维",
+            "全谷物"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "三文鱼",
+        "nameEn": "Salmon",
+        "description": "新鲜三文鱼，富含Omega-3",
+        "category": "seafood",
+        "subcategories": [
+            "深海鱼",
+            "富脂鱼"
+        ],
+        "nutrition": {
+            "calories": 208,
+            "protein": 20,
+            "carbohydrates": 0,
+            "fat": 13,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 44,
+            "potassium": 363,
+            "iron": 0.3
+        },
+        "commonUnits": [
+            "克",
+            "片",
+            "块"
+        ],
+        "allergens": [
+            "鱼类"
+        ],
+        "dietaryTags": [
+            "高蛋白",
+            "富含Omega-3"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "核桃",
+        "nameEn": "Walnuts",
+        "description": "优质核桃仁",
+        "category": "nuts",
+        "subcategories": [
+            "坚果",
+            "植物蛋白"
+        ],
+        "nutrition": {
+            "calories": 654,
+            "protein": 15.2,
+            "carbohydrates": 13.7,
+            "fat": 65.2,
+            "fiber": 6.7,
+            "sugar": 2.6,
+            "sodium": 2,
+            "potassium": 441,
+            "iron": 2.9,
+            "calcium": 98
+        },
+        "commonUnits": [
+            "颗",
+            "勺",
+            "克"
+        ],
+        "allergens": [
+            "坚果"
+        ],
+        "dietaryTags": [
+            "素食",
+            "纯素",
+            "高蛋白",
+            "富含Omega-3"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "牛奶",
+        "nameEn": "Milk",
+        "description": "全脂牛奶",
+        "category": "dairy",
+        "subcategories": [
+            "液态奶",
+            "全脂"
+        ],
+        "nutrition": {
+            "calories": 42,
+            "protein": 3.4,
+            "carbohydrates": 5,
+            "fat": 1,
+            "fiber": 0,
+            "sugar": 5,
+            "sodium": 44,
+            "potassium": 150,
+            "calcium": 113
+        },
+        "commonUnits": [
+            "毫升",
+            "杯",
+            "盒"
+        ],
+        "allergens": [
+            "乳制品"
+        ],
+        "dietaryTags": [
+            "富含钙质"
+        ],
+        "dataSource": "manual"
+    },
+    {
+        "name": "鸡蛋",
+        "nameEn": "Egg",
+        "description": "新鲜鸡蛋",
+        "category": "other",
+        "subcategories": [
+            "蛋类",
+            "动物蛋白"
+        ],
+        "nutrition": {
+            "calories": 155,
+            "protein": 13,
+            "carbohydrates": 1.1,
+            "fat": 11,
+            "fiber": 0,
+            "sugar": 1.1,
+            "sodium": 124,
+            "potassium": 138,
+            "iron": 1.2
+        },
+        "commonUnits": [
+            "个",
+            "只"
+        ],
+        "allergens": [
+            "鸡蛋"
+        ],
+        "dietaryTags": [
+            "高蛋白"
+        ],
+        "dataSource": "manual"
+    }
+]

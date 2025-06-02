@@ -23,6 +23,7 @@ services:
     volumes:
       # Source code for hot reload
       - ./src:/app/src:cached
+      - ./scripts:/app/scripts:cached
       # Configuration files
       - ./tsconfig.json:/app/tsconfig.json:ro
       - ./tsconfig.build.json:/app/tsconfig.build.json:ro
@@ -33,6 +34,35 @@ services:
       - ./.env.development:/app/.env.development:ro
     networks:
       - nutriguide-dev-network
+
+  # Database Seeding Service
+  nutriguide-seeder-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        NODE_ENV: development
+    container_name: nutriguide-seeder-dev
+    env_file:
+      - .env.development
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongodb-dev:27017/nutriguide_dev
+    depends_on:
+      - mongodb-dev
+    volumes:
+      - ./src:/app/src:cached
+      - ./scripts:/app/scripts:cached
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./tsconfig.build.json:/app/tsconfig.build.json:ro
+      - ./nest-cli.json:/app/nest-cli.json:ro
+      - ./.env.development:/app/.env.development:ro
+    networks:
+      - nutriguide-dev-network
+    profiles:
+      - seeding
+    command: npm run db:seed
 
   # MongoDB Database - Development
   mongodb-dev:

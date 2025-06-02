@@ -14,12 +14,26 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     const envConfig = configService.get('env');
 
-    // Global validation pipe
+    // Global validation pipe with enhanced error formatting
     app.useGlobalPipes(
         new ValidationPipe({
             whitelist: true,
             forbidNonWhitelisted: true,
             transform: true,
+            disableErrorMessages: envConfig.NODE_ENV === 'production',
+            exceptionFactory: (errors) => {
+                const formattedErrors = errors.map(error => ({
+                    field: error.property,
+                    message: Object.values(error.constraints || {}).join(', '),
+                    value: error.value,
+                }));
+
+                const { BadRequestException } = require('@nestjs/common');
+                return new BadRequestException({
+                    message: 'Validation failed',
+                    errors: formattedErrors,
+                });
+            },
         })
     );
 
@@ -28,6 +42,8 @@ async function bootstrap() {
     app.enableCors({
         origin: corsOrigin ? corsOrigin.split(',') : true,
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     });
 
     // API prefix (exclude AppController routes)

@@ -121,3 +121,7 @@ venv/
 env/
 *.pyc
 __pycache__/ 
+
+docs/
+*.md
+!/README.md
