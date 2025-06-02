@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # NutriGuide Backend API
+  nutriguide-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/nutriguide
+      - JWT_SECRET=your-super-secret-jwt-key-here
+      - JWT_EXPIRES_IN=7d
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - nutriguide-network
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=nutriguide
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - nutriguide-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  nutriguide-network:
+    driver: bridge 

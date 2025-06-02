@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # NutriGuide Backend API - Development
+  nutriguide-backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: development
+    container_name: nutriguide-backend-dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.development
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongodb-dev:27017/nutriguide_dev
+    depends_on:
+      - mongodb-dev
+    restart: unless-stopped
+    volumes:
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+    networks:
+      - nutriguide-dev-network
+
+  # MongoDB Database - Development
+  mongodb-dev:
+    image: mongo:5.0
+    container_name: mongodb-dev
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=nutriguide_dev
+    volumes:
+      - mongodb_dev_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    restart: unless-stopped
+    networks:
+      - nutriguide-dev-network
+
+  # MongoDB Admin UI (Optional for development)
+  mongo-express-dev:
+    image: mongo-express:latest
+    container_name: mongo-express-dev
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb-dev
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+    depends_on:
+      - mongodb-dev
+    restart: unless-stopped
+    networks:
+      - nutriguide-dev-network
+
+volumes:
+  mongodb_dev_data:
+
+networks:
+  nutriguide-dev-network:
+    driver: bridge 

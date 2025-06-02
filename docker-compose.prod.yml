@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # NutriGuide Backend API - Production
+  nutriguide-backend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: nutriguide-backend-prod
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb-prod:27017/nutriguide_prod
+    depends_on:
+      - mongodb-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    networks:
+      - nutriguide-prod-network
+
+  # MongoDB Database - Production
+  mongodb-prod:
+    image: mongo:5.0
+    container_name: mongodb-prod
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=nutriguide_prod
+    volumes:
+      - mongodb_prod_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    networks:
+      - nutriguide-prod-network
+
+volumes:
+  mongodb_prod_data:
+
+networks:
+  nutriguide-prod-network:
+    driver: bridge 

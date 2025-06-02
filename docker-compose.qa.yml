@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # NutriGuide Backend API - QA
+  nutriguide-backend-qa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: qa
+    container_name: nutriguide-backend-qa
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.qa
+    environment:
+      - NODE_ENV=qa
+      - MONGODB_URI=mongodb://mongodb-qa:27017/nutriguide_qa
+    depends_on:
+      - mongodb-qa
+    restart: unless-stopped
+    networks:
+      - nutriguide-qa-network
+
+  # MongoDB Database - QA
+  mongodb-qa:
+    image: mongo:5.0
+    container_name: mongodb-qa
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=nutriguide_qa
+    volumes:
+      - mongodb_qa_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    restart: unless-stopped
+    networks:
+      - nutriguide-qa-network
+
+volumes:
+  mongodb_qa_data:
+
+networks:
+  nutriguide-qa-network:
+    driver: bridge 

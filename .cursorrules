@@ -1,0 +1,151 @@
+**NutriGuide - Backend Cursor Development Rules (V1.0 - MVP)**
+
+**--- General Coding & Structure ---**
+
+1.  **`RULE: Language-Specific Formatting`**
+    *   **`WHEN:`** Writing TypeScript/JavaScript (NestJS)
+        *   **`DO:`** Use Prettier (config: singleQuote=true, trailingComma='es5', printWidth=100, tabWidth=2, semi=true).
+        *   **`DO:`** Use ESLint (config: `eslint:recommended`, `plugin:@typescript-eslint/recommended`).
+    *   **`WHEN:`** Writing Python
+        *   **`DO:`** Adhere to PEP 8.
+        *   **`DO:`** Use Black for formatting.
+        *   **`DO:`** Use Flake8 for linting.
+
+2.  **`RULE: Naming Conventions`**
+    *   **`WHEN:`** Naming variables, functions (TS/JS)
+        *   **`DO:`** Use `camelCase`.
+    *   **`WHEN:`** Naming classes, interfaces, enums, type aliases (TS/JS)
+        *   **`DO:`** Use `PascalCase`.
+    *   **`WHEN:`** Naming constants (TS/JS & Python)
+        *   **`DO:`** Use `UPPER_CASE_SNAKE_CASE`.
+    *   **`WHEN:`** Naming files (TS/JS - NestJS components)
+        *   **`DO:`** Use `kebab-case` (e.g., `user.service.ts`).
+    *   **`WHEN:`** Naming variables, functions, methods, modules (Python)
+        *   **`DO:`** Use `snake_case`.
+    *   **`WHEN:`** Naming classes (Python)
+        *   **`DO:`** Use `PascalCase`.
+
+3.  **`RULE: Comments & Documentation`**
+    *   **`WHEN:`** Documenting public APIs (classes, methods, functions) in TypeScript/JavaScript
+        *   **`DO:`** Use JSDoc style comments.
+    *   **`WHEN:`** Documenting modules, classes, functions, methods in Python
+        *   **`DO:`** Use PEP 257 Docstrings.
+    *   **`WHEN:`** Marking unfinished work
+        *   **`DO:`** Use `// TODO: (description)` or `# TODO: (description)`.
+    *   **`WHEN:`** Marking issues to be fixed
+        *   **`DO:`** Use `// FIXME: (description)` or `# FIXME: (description)`.
+
+4.  **`RULE: Version Control (Git)`**
+    *   **`WHEN:`** Creating new features or fixes
+        *   **`DO:`** Create a new branch from `main` (e.g., `feature/feature-name`, `fix/bug-description`).
+    *   **`WHEN:`** Writing commit messages
+        *   **`DO:`** Follow Conventional Commits format: `<type>(<scope>): <short summary>`.
+    *   **`WHEN:`** Merging code to `main`
+        *   **`DO:`** Require a Pull Request (PR) and at least one code review.
+    *   **`DO:`** Maintain a comprehensive `.gitignore` file (ignore `node_modules`, `venv`, `.env`, IDE files, build artifacts).
+
+**--- NestJS (TypeScript) Specific Rules ---**
+
+5.  **`RULE: NestJS Modularity`**
+    *   **`DO:`** Organize related features into separate NestJS Modules.
+    *   **`DO:`** Controllers: Keep lightweight (routing, validation, call services).
+    *   **`DO:`** Services: Encapsulate all business logic.
+    *   **`DO:`** Use DTOs (Data Transfer Objects - classes with `class-validator`) for request/response bodies.
+
+6.  **`RULE: NestJS Database Interaction (Mongoose)`**
+    *   **`DO:`** Define MongoDB schemas using Mongoose Schemas.
+    *   **`DO:`** Access database ONLY through Service layers.
+    *   **`DO:`** Define indexes in Schemas for frequently queried fields.
+
+7.  **`RULE: NestJS Error Handling`**
+    *   **`DO:`** Use built-in NestJS HTTP exceptions (e.g., `HttpException`, `NotFoundException`).
+    *   **`DO:`** Implement a Global Exception Filter for standardized error responses.
+    *   **`STANDARD_ERROR_RESPONSE:`** `{ statusCode, message, error?, errors?, timestamp }`.
+
+8.  **`RULE: NestJS Logging`**
+    *   **`DO:`** Use NestJS `LoggerService` or a configured third-party logger (Winston/Pino).
+    *   **`DO:`** Log critical operations, errors, and include context (module, request ID).
+
+9.  **`RULE: NestJS Configuration`**
+    *   **`DO:`** Use `@nestjs/config` and `.env` files for environment-specific configurations.
+    *   **`NEVER:`** Commit sensitive information (passwords, API keys) to version control.
+
+10. **`RULE: NestJS Asynchronous Operations`**
+    *   **`DO:`** Prefer `async/await` for all asynchronous code.
+
+**--- Python Specific Rules ---**
+
+11. **`RULE: Python Environment & Dependencies`**
+    *   **`DO:`** Use a separate virtual environment (`venv`/`conda`) for each Python project/service.
+    *   **`DO:`** Track dependencies in `requirements.txt` or `pyproject.toml`.
+
+12. **`RULE: Python Modularity & Typing`**
+    *   **`DO:`** Organize code into well-defined modules and packages.
+    *   **`DO:`** Use Type Hinting (PEP 484) for all function signatures and variable declarations where applicable.
+
+13. **`RULE: Python Error Handling`**
+    *   **`DO:`** Use `try...except` blocks to handle specific exceptions.
+    *   **`AVOID:`** Catching generic `Exception` unless necessary and re-raised or logged appropriately.
+
+14. **`RULE: Python Logging`**
+    *   **`DO:`** Use the built-in `logging` module, configured at application/script startup.
+
+**--- API Design Rules ---**
+
+15. **`RULE: API RESTful Principles`**
+    *   **`DO:`** Use standard HTTP methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`).
+    *   **`DO:`** Use plural nouns for resource paths (e.g., `/users`, `/recipes`).
+    *   **`DO:`** Include API version in path (e.g., `/api/v1/...`).
+
+16. **`RULE: API Request/Response`**
+    *   **`DO:`** Use JSON for all request and response bodies.
+    *   **`STANDARD_SUCCESS_RESPONSE:`** `{ statusCode, message?, data }`.
+    *   **`DO:`** Use appropriate HTTP status codes.
+    *   **`DO:`** Implement pagination (`?page=1&limit=20`) and sorting (`?sortBy=field&order=desc`) for list endpoints.
+
+17. **`RULE: API Documentation`**
+    *   **`WHEN:`** Using NestJS
+        *   **`DO:`** Use `@nestjs/swagger` to auto-generate OpenAPI documentation.
+        *   **`DO:`** Ensure DTOs and controller methods have descriptive Swagger annotations.
+
+**--- Testing Rules ---**
+
+18. **`RULE: Unit Testing`**
+    *   **`WHEN:`** Using NestJS
+        *   **`DO:`** Write Jest unit tests for services, controllers (simple logic), pipes, guards.
+    *   **`WHEN:`** Using Python
+        *   **`DO:`** Write unittest/pytest unit tests for core functions and class methods.
+    *   **`DO:`** Mock external dependencies.
+    *   **`TARGET:`** Core module unit test coverage: 60-70% (MVP).
+
+19. **`RULE: Integration Testing (NestJS)`**
+    *   **`DO:`** Test module interactions and API endpoint behavior.
+
+**--- Security Rules ---**
+
+20. **`RULE: Input Validation`**
+    *   **`DO:`** Validate ALL client-provided input (path params, query params, request body).
+    *   **`WHEN:`** Using NestJS
+        *   **`DO:`** Use `ValidationPipe` with `class-validator` DTOs.
+
+21. **`RULE: Authentication & Authorization`**
+    *   **`DO:`** Use JWT for API authentication.
+    *   **`DO:`** Implement authorization checks (e.g., NestJS Guards) for sensitive operations.
+
+22. **`RULE: Password Security`**
+    *   **`DO:`** Store user passwords hashed with a strong algorithm (e.g., bcrypt) and salt.
+    *   **`NEVER:`** Store passwords in plaintext.
+
+23. **`RULE: Dependency Security`**
+    *   **`DO:`** Regularly scan dependencies for vulnerabilities (`npm audit`, `pip-audit`/`safety`).
+
+24. **`RULE: HTTPS`**
+    *   **`DO:`** Enforce HTTPS in production environments.
+
+**How Cursor might use these rules:**
+
+*   **Code Generation:** When asked to generate a new service, controller, or DTO, Cursor would adhere to the naming conventions, DTO structure, and basic error handling.
+*   **Linting/Suggestions:** If integrated with linting tools, Cursor could highlight deviations from these rules in real-time or during code reviews.
+*   **Refactoring:** When asked to refactor code, Cursor could apply these rules to improve consistency.
+*   **Answering Questions:** If asked "How should I handle errors in a NestJS service for NutriGuide?", Cursor could refer to Rule #7.
+*   **Custom Prompts:** Developers could craft specific prompts incorporating these rules, e.g., "Create a NestJS service for `recipes` following NutriGuide backend rules, including CRUD methods and basic error handling."
