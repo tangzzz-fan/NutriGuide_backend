@@ -202,9 +202,123 @@ npm run docker:down
 
 ### 数据库初始化
 
-项目包含MongoDB初始化脚本(`scripts/mongo-init.js`)，会自动：
+#### Docker环境 (推荐)
+
+项目包含MongoDB初始化脚本(`scripts/mongo-init.js`)，Docker启动时会自动：
 - 创建必要的集合和索引
 - 在开发环境中插入示例数据
+
+#### 非Docker环境 (本地MongoDB)
+
+如果您在本地运行MongoDB而不使用Docker，请使用提供的初始化脚本：
+
+##### 前置要求
+
+1. **安装MongoDB**: 确保本地已安装MongoDB 5.0+
+   ```bash
+   # macOS (使用Homebrew)
+   brew install mongodb-community
+   
+   # Ubuntu/Debian
+   sudo apt-get install mongodb-org
+   
+   # Windows: 从官网下载安装包
+   ```
+
+2. **启动MongoDB服务**
+   ```bash
+   # macOS/Linux
+   sudo systemctl start mongod
+   # 或者
+   brew services start mongodb-community
+   
+   # Windows
+   net start MongoDB
+   ```
+
+3. **安装MongoDB Shell (mongosh)**
+   ```bash
+   # 如果没有安装mongosh
+   npm install -g mongosh
+   ```
+
+##### 使用初始化脚本
+
+```bash
+# 权限设置（首次运行）
+chmod +x scripts/init-local-mongodb.sh
+
+# 初始化开发环境 (默认)
+./scripts/init-local-mongodb.sh
+
+# 初始化QA环境
+./scripts/init-local-mongodb.sh -e qa
+
+# 初始化生产环境
+./scripts/init-local-mongodb.sh -e production
+
+# 自定义MongoDB连接
+./scripts/init-local-mongodb.sh -e development -h localhost -p 27017
+
+# 查看完整选项
+./scripts/init-local-mongodb.sh --help
+```
+
+##### 脚本功能
+
+该脚本会自动：
+- ✅ 检查MongoDB连接
+- ✅ 创建环境对应的数据库 (`nutriguide_dev`, `nutriguide_qa`, `nutriguide_prod`)
+- ✅ 创建必要的集合：`users`, `authtokens`, `smsverifications`, `sociallogins`, `foods`, `nutritionplans`, `userprofiles`, `mealrecords`
+- ✅ 创建所有必要的索引（email、username、phone等）
+- ✅ 在开发环境中插入示例数据
+- ✅ 显示后续配置步骤
+
+##### 验证数据库初始化
+
+```bash
+# 连接到数据库验证
+mongosh mongodb://localhost:27017/nutriguide_dev
+
+# 查看集合
+show collections
+
+# 查看索引
+db.users.getIndexes()
+
+# 退出
+exit
+```
+
+##### 手动初始化 (可选)
+
+如果脚本无法使用，也可以手动执行：
+
+```bash
+# 连接MongoDB
+mongosh mongodb://localhost:27017
+
+# 切换到目标数据库
+use nutriguide_dev
+
+# 执行初始化脚本
+load('scripts/mongo-init.js')
+```
+
+##### 环境配置更新
+
+初始化完成后，确保更新环境配置文件：
+
+```bash
+# .env.development
+MONGODB_URI=mongodb://localhost:27017/nutriguide_dev
+
+# .env.qa  
+MONGODB_URI=mongodb://localhost:27017/nutriguide_qa
+
+# .env.production
+MONGODB_URI=mongodb://localhost:27017/nutriguide_prod
+```
 
 ## API 文档
 
@@ -325,4 +439,271 @@ docker-compose -f docker-compose.prod.yml logs -f
 
 ## 联系方式
 
-如有问题，请联系开发团队。 
+如有问题，请联系开发团队。
+
+## 🚀 Features
+
+### Core Modules
+
+#### 👤 User Management
+- Complete user CRUD operations
+- User profile management with health metrics
+- Email verification system
+- User statistics and analytics
+- Soft delete with restore functionality
+
+#### 🔐 Authentication & Authorization
+- **Multiple Login Methods:**
+  - Email/Username + Password
+  - Phone + Password
+  - Phone + SMS Code (with auto-registration)
+  - Phone One-Tap Login (mobile SDK integration)
+  - Social Login (WeChat, Apple, Google, Facebook)
+- **JWT-based Authentication:**
+  - Access tokens (1 hour expiry)
+  - Refresh tokens (30-60 days based on "remember me")
+  - Device-specific token management
+- **SMS Verification:**
+  - Rate limiting (1 SMS per minute)
+  - 6-digit codes with 5-minute expiry
+  - Multiple verification types (login, registration, etc.)
+- **Security Features:**
+  - Password hashing with bcrypt (12 salt rounds)
+  - Token revocation and logout from all devices
+  - User account status validation
+
+### 🏗️ Technical Features
+
+- **Environment Configuration:** Development, QA, and Production setups
+- **Database:** MongoDB with Mongoose ODM
+- **API Documentation:** Swagger/OpenAPI integration
+- **Testing:** Comprehensive unit tests with Jest
+- **Docker Support:** Multi-environment containerization
+- **Code Quality:** ESLint, Prettier, and TypeScript strict mode
+- **Error Handling:** Global exception filters with standardized responses
+
+## 📋 Prerequisites
+
+- Node.js 18+ 
+- MongoDB 5.0+
+- npm or yarn
+
+## 🛠️ Installation
+
+### 1. Clone the repository
+```bash
+git clone <repository-url>
+cd nutriguide-backend
+```
+
+### 2. Install dependencies
+```bash
+npm install
+```
+
+### 3. Environment Configuration
+
+Create environment files based on your needs:
+
+```bash
+# Development
+cp .env.example .env.development
+
+# QA
+cp .env.example .env.qa
+
+# Production  
+cp .env.example .env.production
+```
+
+**Required Environment Variables:**
+```env
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/nutriguide_dev
+JWT_SECRET=your-super-secret-jwt-key-here
+JWT_EXPIRES_IN=1h
+PORT=3000
+```
+
+### 4. Database Setup
+
+#### Option A: Using Docker (Recommended)
+```bash
+# Development environment
+docker-compose -f docker-compose.dev.yml up -d
+
+# QA environment
+docker-compose -f docker-compose.qa.yml up -d
+
+# Production environment
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+#### Option B: Local MongoDB
+```bash
+# Initialize MongoDB with indexes and collections
+chmod +x scripts/init-local-mongodb.sh
+./scripts/init-local-mongodb.sh development
+
+# Or manually start MongoDB and the application will create collections
+mongod --dbpath /path/to/your/db
+```
+
+## 🚀 Running the Application
+
+### Development Mode
+```bash
+# With hot reload
+npm run start:dev
+
+# With Docker
+docker-compose -f docker-compose.dev.yml up
+```
+
+### Production Mode
+```bash
+# Build and start
+npm run build
+npm run start:prod
+
+# With Docker
+docker-compose -f docker-compose.prod.yml up
+```
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+npm test
+
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
+```
+
+## 📚 API Documentation
+
+Once the application is running, access the Swagger documentation at:
+- Development: http://localhost:3000/api/docs
+- QA: http://localhost:3001/api/docs  
+- Production: http://localhost:3002/api/docs
+
+### Authentication Endpoints
+
+#### Login Methods
+- `POST /auth/login/email` - Email/Username + Password
+- `POST /auth/login/phone` - Phone + Password
+- `POST /auth/login/sms` - Phone + SMS Code
+- `POST /auth/login/one-tap` - Phone One-Tap (Mobile SDK)
+- `POST /auth/login/social` - Social Login (WeChat, Apple, etc.)
+
+#### SMS Verification
+- `POST /auth/sms/send` - Send SMS verification code
+- `POST /auth/sms/verify` - Verify SMS code
+
+#### Token Management
+- `POST /auth/refresh` - Refresh access token
+- `POST /auth/logout` - Logout (revoke tokens)
+- `GET /auth/profile` - Get current user profile
+
+#### User Management
+- `GET /users` - List users (paginated)
+- `POST /users` - Create user
+- `GET /users/:id` - Get user by ID
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Soft delete user
+- `POST /users/:id/restore` - Restore deleted user
+- `GET /users/statistics` - User statistics
+
+## 🏗️ Project Structure
+
+```
+src/
+├── app.module.ts              # Main application module
+├── main.ts                    # Application entry point
+├── common/                    # Shared utilities
+│   ├── dto/                   # Common DTOs (pagination, etc.)
+│   └── filters/               # Exception filters
+├── config/                    # Configuration files
+│   ├── database.config.ts     # Database configuration
+│   └── environment.config.ts  # Environment configuration
+└── modules/                   # Feature modules
+    ├── auth/                  # Authentication module
+    │   ├── dto/               # Auth DTOs
+    │   ├── guards/            # JWT guards
+    │   ├── interfaces/        # Auth interfaces
+    │   ├── schemas/           # MongoDB schemas
+    │   └── strategies/        # Passport strategies
+    └── user/                  # User management module
+        ├── dto/               # User DTOs
+        └── schemas/           # User schemas
+```
+
+## 🔧 Development Guidelines
+
+### Code Style
+- Follow the `.cursorrules` specifications
+- Use TypeScript strict mode
+- Implement comprehensive error handling
+- Write unit tests for all services and controllers
+- Use Swagger annotations for API documentation
+
+### Database Design
+- Use MongoDB with Mongoose ODM
+- Implement proper indexing for performance
+- Use soft deletes for user data
+- Store sensitive data securely (hashed passwords, etc.)
+
+### Authentication Flow
+1. User provides credentials via any supported method
+2. System validates credentials and user status
+3. JWT access token and refresh token are generated
+4. Tokens are returned to client
+5. Client uses access token for authenticated requests
+6. Refresh token used to obtain new access tokens
+
+## 🐳 Docker Configuration
+
+### Multi-Environment Setup
+- **Development:** Port 3000, MongoDB on 27017
+- **QA:** Port 3001, MongoDB on 27018  
+- **Production:** Port 3002, MongoDB on 27019
+
+### Services
+- **Backend API:** NestJS application
+- **MongoDB:** Database with initialization scripts
+- **Mongo Express:** Database admin UI (development only)
+
+## 📊 Monitoring & Logging
+
+- Structured logging with context information
+- Request/response logging
+- Error tracking with stack traces
+- Performance monitoring capabilities
+
+## 🔒 Security Features
+
+- JWT-based authentication
+- Password hashing with bcrypt
+- Rate limiting for SMS and API endpoints
+- Input validation and sanitization
+- CORS configuration
+- Environment-based security settings
+
+## 🤝 Contributing
+
+1. Follow the established code style and patterns
+2. Write comprehensive tests for new features
+3. Update documentation for API changes
+4. Use conventional commit messages
+5. Ensure all tests pass before submitting
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+**NutriGuide Backend** - Building the future of personalized nutrition tracking! 🥗✨ 

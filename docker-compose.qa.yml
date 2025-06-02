@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: production
       args:
         NODE_ENV: qa
     container_name: nutriguide-backend-qa

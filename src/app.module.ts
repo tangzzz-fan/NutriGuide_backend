@@ -8,6 +8,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import environmentConfig from './config/environment.config';
 import databaseConfig from './config/database.config';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
     imports: [
@@ -34,6 +35,7 @@ import { UserModule } from './modules/user/user.module';
 
         // Feature modules
         UserModule,
+        AuthModule,
     ],
     controllers: [AppController],
     providers: [

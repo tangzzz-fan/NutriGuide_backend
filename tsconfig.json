@@ -17,10 +17,36 @@
         "strictBindCallApply": false,
         "forceConsistentCasingInFileNames": false,
         "noFallthroughCasesInSwitch": false,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "strict": false,
         "paths": {
             "@/*": [
                 "src/*"
+            ],
+            "@common/*": [
+                "src/common/*"
+            ],
+            "@modules/*": [
+                "src/modules/*"
+            ],
+            "@config/*": [
+                "src/config/*"
             ]
         }
+    },
+    "include": [
+        "src/**/*",
+        "test/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "coverage"
+    ],
+    "ts-node": {
+        "require": [
+            "tsconfig-paths/register"
+        ]
     }
 }

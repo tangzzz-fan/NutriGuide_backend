@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
       args:
         NODE_ENV: development
     container_name: nutriguide-backend-dev
@@ -20,8 +21,16 @@ services:
       - mongodb-dev
     restart: unless-stopped
     volumes:
-      - ./src:/app/src
-      - ./package.json:/app/package.json
+      # Source code for hot reload
+      - ./src:/app/src:cached
+      # Configuration files
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./tsconfig.build.json:/app/tsconfig.build.json:ro
+      - ./nest-cli.json:/app/nest-cli.json:ro
+      - ./.eslintrc.js:/app/.eslintrc.js:ro
+      - ./.prettierrc.json:/app/.prettierrc.json:ro
+      # Environment files
+      - ./.env.development:/app/.env.development:ro
     networks:
       - nutriguide-dev-network
 

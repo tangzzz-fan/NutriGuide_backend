@@ -3,6 +3,18 @@
     "collection": "@nestjs/schematics",
     "sourceRoot": "src",
     "compilerOptions": {
-        "deleteOutDir": true
+        "deleteOutDir": false,
+        "tsConfigPath": "tsconfig.build.json"
+    },
+    "projects": {
+        "nutriguide-backend": {
+            "type": "application",
+            "root": "",
+            "entryFile": "main",
+            "sourceRoot": "src",
+            "compilerOptions": {
+                "tsConfigPath": "tsconfig.build.json"
+            }
+        }
     }
 }

@@ -3,6 +3,31 @@ FROM node:18-alpine AS builder
 
 # Accept build argument for environment
 ARG NODE_ENV=production
+ENV NODE_ENV=development
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies for building (including dev dependencies)
+RUN npm ci && npm cache clean --force
+
+# Copy configuration files needed for build
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN npm run build
+
+# Development stage - for development only
+FROM node:18-alpine AS development
+
+# Accept build argument for environment
+ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app
@@ -10,14 +35,24 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies for building
+# Install all dependencies including dev dependencies
 RUN npm ci && npm cache clean --force
 
-# Copy source code
-COPY . .
+# Copy TypeScript configuration files
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
 
-# Build the application
-RUN npm run build
+# Copy source code
+COPY src ./src
+
+# Create dist directory with proper permissions
+RUN mkdir -p dist && chmod 755 dist
+
+# Expose port
+EXPOSE 3000
+
+# Start the application in development mode
+CMD ["npm", "run", "start:dev"]
 
 # Production stage
 FROM node:18-alpine AS production

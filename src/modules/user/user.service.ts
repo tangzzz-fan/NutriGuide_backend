@@ -114,6 +114,43 @@ export class UserService {
     }
 
     /**
+     * Find user by ID (for auth service)
+     * @param id - User ID
+     * @returns User document or null
+     */
+    async findById(id: string): Promise<UserDocument | null> {
+        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+            return null;
+        }
+        return this.userModel.findById(id);
+    }
+
+    /**
+     * Find user by phone number
+     * @param phone - Phone number
+     * @returns User document or null
+     */
+    async findByPhone(phone: string): Promise<UserDocument | null> {
+        return this.userModel.findOne({ phone, isActive: true });
+    }
+
+    /**
+     * Find user by email or username
+     * @param identifier - Email or username
+     * @returns User document or null
+     */
+    async findByEmailOrUsername(identifier: string): Promise<UserDocument | null> {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isEmail = emailRegex.test(identifier);
+
+        if (isEmail) {
+            return this.findByEmail(identifier);
+        } else {
+            return this.findByUsername(identifier);
+        }
+    }
+
+    /**
      * Update user information
      * @param id - User ID
      * @param updateUserDto - Update data

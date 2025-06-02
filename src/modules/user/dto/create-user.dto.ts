@@ -8,6 +8,7 @@ import {
     IsNotEmpty,
     IsDateString,
     IsEnum,
+    IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -137,4 +138,12 @@ export class CreateUserDto {
         | 'moderately-active'
         | 'very-active'
         | 'extra-active';
+
+    @ApiPropertyOptional({
+        description: 'Email verification status',
+        example: false,
+    })
+    @IsOptional()
+    @IsBoolean({ message: 'Email verification status must be a boolean' })
+    isEmailVerified?: boolean;
 }
