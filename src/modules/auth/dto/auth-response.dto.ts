@@ -197,7 +197,7 @@ export class LogoutResponseDto {
 }
 
 /**
- * 用户注册响应DTO
+ * 用户注册响应DTO - 注册成功后自动登录
  */
 export class RegisterResponseDto {
     @ApiProperty({
@@ -207,8 +207,38 @@ export class RegisterResponseDto {
     user: AuthUserResponseDto;
 
     @ApiProperty({
+        description: 'JWT access token - user is automatically logged in after registration',
+        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    })
+    accessToken: string;
+
+    @ApiProperty({
+        description: 'Refresh token',
+        example: 'refresh-token-abc123def456',
+    })
+    refreshToken: string;
+
+    @ApiProperty({
+        description: 'Token type',
+        example: 'Bearer',
+    })
+    tokenType: 'Bearer';
+
+    @ApiProperty({
+        description: 'Access token expiry time in seconds',
+        example: 3600,
+    })
+    expiresIn: number;
+
+    @ApiPropertyOptional({
+        description: 'Refresh token expiry time in seconds',
+        example: 2592000,
+    })
+    refreshExpiresIn?: number;
+
+    @ApiProperty({
         description: 'Success message',
-        example: 'User registered successfully',
+        example: 'User registered and logged in successfully',
     })
     message: string;
 

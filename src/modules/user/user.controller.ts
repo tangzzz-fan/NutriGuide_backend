@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
   Param,
   Delete,
@@ -11,6 +10,7 @@ import {
   HttpStatus,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Body,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,10 +20,8 @@ import {
   ApiQuery,
   ApiBadRequestResponse,
   ApiNotFoundResponse,
-  ApiConflictResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { PaginationQueryDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
@@ -33,36 +31,7 @@ import { ResponseDto, ErrorResponseDto } from '../../common/dto/response.dto';
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Create a new user',
-    description: 'Register a new user account with the provided information',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'User created successfully',
-    type: UserResponseDto,
-  })
-  @ApiConflictResponse({
-    description: 'Email or username already exists',
-    type: ErrorResponseDto,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid input data',
-    type: ErrorResponseDto,
-  })
-  async create(@Body() createUserDto: CreateUserDto): Promise<ResponseDto<UserResponseDto>> {
-    const user = await this.userService.create(createUserDto);
-
-    return new ResponseDto(
-      HttpStatus.CREATED,
-      'User created successfully',
-      user.toJSON() as UserResponseDto
-    );
-  }
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   @ApiOperation({

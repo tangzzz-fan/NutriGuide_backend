@@ -22,7 +22,7 @@ import {
 } from './dto/login.dto';
 
 import { SendSmsCodeDto, VerifySmsCodeDto } from './dto/sms.dto';
-import { LoginResponseDto, RefreshTokenResponseDto, LogoutResponseDto } from './dto/auth-response.dto';
+import { LoginResponseDto, RefreshTokenResponseDto, LogoutResponseDto, RegisterResponseDto } from './dto/auth-response.dto';
 
 import {
     JwtPayload,
@@ -31,6 +31,8 @@ import {
     SocialLoginResult,
     LoginMethod,
 } from './interfaces/auth.interface';
+
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -530,5 +532,71 @@ export class AuthService {
     private async sendSmsMessage(phone: string, message: string): Promise<void> {
         // TODO: Integrate with actual SMS service provider (Aliyun, Tencent Cloud, etc.)
         console.log(`SMS to ${phone}: ${message}`);
+    }
+
+    /**
+     * User registration with auto-login
+     */
+    async register(registerDto: RegisterDto): Promise<RegisterResponseDto> {
+        // Check if email already exists
+        const existingUserByEmail = await this.userService.findByEmail(registerDto.email);
+        if (existingUserByEmail) {
+            throw new ConflictException('Email already exists');
+        }
+
+        // Check if username already exists
+        const existingUserByUsername = await this.userService.findByUsername(registerDto.username);
+        if (existingUserByUsername) {
+            throw new ConflictException('Username already exists');
+        }
+
+        // Check if phone already exists (if provided)
+        if (registerDto.phone) {
+            const existingUserByPhone = await this.userService.findByPhone(registerDto.phone);
+            if (existingUserByPhone) {
+                throw new ConflictException('Phone number already exists');
+            }
+        }
+
+        // Create new user
+        const newUser = await this.userService.create({
+            email: registerDto.email,
+            username: registerDto.username,
+            password: registerDto.password,
+            firstName: registerDto.firstName,
+            lastName: registerDto.lastName,
+            phone: registerDto.phone,
+            birthDate: registerDto.birthDate,
+            gender: registerDto.gender,
+            height: registerDto.height,
+            weight: registerDto.weight,
+            activityLevel: registerDto.activityLevel,
+            isEmailVerified: false, // Default to false, will be verified via email
+        });
+
+        // Update last login
+        await this.userService.updateLastLogin(newUser._id.toString());
+
+        // Generate auth tokens (auto-login)
+        const authResponse = await this.generateAuthResponse(
+            newUser,
+            registerDto.deviceId,
+            registerDto.rememberMe
+        );
+
+        // Prepare registration response
+        const registerResponse: RegisterResponseDto = {
+            user: authResponse.user,
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+            tokenType: authResponse.tokenType,
+            expiresIn: authResponse.expiresIn,
+            refreshExpiresIn: authResponse.refreshExpiresIn,
+            message: 'User registered and logged in successfully',
+            requiresEmailVerification: !newUser.isEmailVerified,
+            requiresPhoneVerification: registerDto.phone ? false : undefined, // TODO: Implement phone verification
+        };
+
+        return registerResponse;
     }
 } 

@@ -62,27 +62,8 @@ describe('UserController', () => {
     });
 
     describe('create', () => {
-        const createUserDto: CreateUserDto = {
-            email: 'newuser@example.com',
-            username: 'newuser',
-            password: 'Password123!',
-            firstName: 'New',
-            lastName: 'User',
-        };
-
-        it('should create a new user', async () => {
-            // Arrange
-            mockUserService.create.mockResolvedValue(mockUser);
-
-            // Act
-            const result = await controller.create(createUserDto);
-
-            // Assert
-            expect(mockUserService.create).toHaveBeenCalledWith(createUserDto);
-            expect(result.statusCode).toBe(HttpStatus.CREATED);
-            expect(result.message).toBe('User created successfully');
-            expect(result.data).toEqual(mockUser.toJSON());
-        });
+        // Create method has been moved to AuthController.register
+        // This test is no longer applicable
     });
 
     describe('findAll', () => {
