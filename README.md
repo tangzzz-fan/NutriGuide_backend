@@ -769,10 +769,10 @@ curl -X POST http://localhost:3000/api/v1/auth/register/phone \
 
 系统提供了以下默认测试用户，详细信息请查看 [默认用户文档](docs/DEFAULT_USERS.md)：
 
-- **管理员**: `admin@nutriguide.com` / `admin` / `Password123!`
-- **测试用户1**: `john.doe@example.com` / `johndoe` / `Password123!`
-- **测试用户2**: `jane.smith@example.com` / `janesmith` / `Password123!`
-- **测试用户3**: `test.user@example.com` / `testuser` / `Password123!`
+- **管理员**: `admin@nutriguide.com` / `admin` / `Password123!` / `13800138000`
+- **测试用户1**: `john.doe@example.com` / `johndoe` / `Password123!` / `13800138001`
+- **测试用户2**: `jane.smith@example.com` / `janesmith` / `Password123!` / `13800138002`
+- **测试用户3**: `test.user@example.com` / `testuser` / `Password123!` / `13800138003`
 
 #### 改进的错误处理
 

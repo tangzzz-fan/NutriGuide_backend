@@ -14,14 +14,14 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RegisterDto {
     @ApiProperty({
-        description: 'User phone number (required)',
-        example: '+8613800138000',
-        pattern: '^\\+?[1-9]\\d{1,14}$',
+        description: 'User phone number (required). Can include country code with + prefix or without.',
+        example: '+8613800138000 or 13800138000',
+        pattern: '^(\\+?[1-9]\\d{1,14}|1[3-9]\\d{9})$',
     })
     @IsString({ message: 'Phone number must be a string' })
     @IsNotEmpty({ message: 'Phone number is required' })
-    @Matches(/^\+?[1-9]\d{1,14}$/, {
-        message: 'Please provide a valid phone number',
+    @Matches(/^(\+?[1-9]\d{1,14}|1[3-9]\d{9})$/, {
+        message: 'Please provide a valid phone number. Examples: +8613800138000, 13800138000',
     })
     phone: string;
 
@@ -75,9 +75,10 @@ export class RegisterDto {
     firstName?: string;
 
     @ApiPropertyOptional({
-        description: 'User last name',
+        description: 'User last name (optional)',
         example: 'Doe',
         maxLength: 50,
+        required: false,
     })
     @IsOptional()
     @IsString({ message: 'Last name must be a string' })

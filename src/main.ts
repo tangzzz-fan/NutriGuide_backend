@@ -22,16 +22,24 @@ async function bootstrap() {
             transform: true,
             disableErrorMessages: envConfig.NODE_ENV === 'production',
             exceptionFactory: (errors) => {
-                const formattedErrors = errors.map(error => ({
-                    field: error.property,
-                    message: Object.values(error.constraints || {}).join(', '),
-                    value: error.value,
-                }));
+                const formattedErrors = errors.map(error => {
+                    const constraints = error.constraints || {};
+                    const messages = Object.values(constraints);
+
+                    return {
+                        field: error.property,
+                        message: messages.join(', '),
+                        value: error.value,
+                        constraints: constraints,
+                    };
+                });
 
                 const { BadRequestException } = require('@nestjs/common');
                 return new BadRequestException({
                     message: 'Validation failed',
+                    error: 'Validation failed',
                     errors: formattedErrors,
+                    details: `Please check the following fields: ${formattedErrors.map(e => e.field).join(', ')}`,
                 });
             },
         })
