@@ -9,41 +9,43 @@ export type UserDocument = User & Document;
 })
 export class User {
   @Prop({
-    required: true,
+    required: false,
     unique: true,
     lowercase: true,
     trim: true,
+    sparse: true, // Allow multiple null values for unique index
   })
-  email: string;
+  email?: string;
 
   @Prop({
-    required: true,
+    required: false,
     unique: true,
     trim: true,
     minlength: 3,
     maxlength: 30,
+    sparse: true, // Allow multiple null values for unique index
   })
-  username: string;
+  username?: string;
 
   @Prop({
-    required: true,
+    required: false,
     minlength: 6,
   })
-  password: string;
+  password?: string;
 
   @Prop({
-    required: true,
+    required: false,
     trim: true,
     maxlength: 50,
   })
-  firstName: string;
+  firstName?: string;
 
   @Prop({
-    required: true,
+    required: false,
     trim: true,
     maxlength: 50,
   })
-  lastName: string;
+  lastName?: string;
 
   @Prop({
     enum: ['male', 'female', 'other'],
@@ -59,11 +61,12 @@ export class User {
   birthYear?: number;
 
   @Prop({
-    required: false,
+    required: true,
+    unique: true,
     trim: true,
     maxlength: 20,
   })
-  phone?: string;
+  phone: string;
 
   @Prop({
     default: true,
@@ -109,14 +112,17 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 // Indexes
-UserSchema.index({ email: 1 }, { unique: true });
-UserSchema.index({ username: 1 }, { unique: true });
+UserSchema.index({ phone: 1 }, { unique: true });
+UserSchema.index({ email: 1 }, { unique: true, sparse: true });
+UserSchema.index({ username: 1 }, { unique: true, sparse: true });
 UserSchema.index({ createdAt: 1 });
 UserSchema.index({ isActive: 1 });
 
 // Virtual for full name
 UserSchema.virtual('fullName').get(function (this: UserDocument) {
-  return `${this.firstName} ${this.lastName}`;
+  const firstName = this.firstName || '';
+  const lastName = this.lastName || '';
+  return `${firstName} ${lastName}`.trim() || 'User';
 });
 
 // Ensure virtual fields are serialized

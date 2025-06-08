@@ -26,32 +26,62 @@ export class UserService {
      * @returns Created user document
      */
     async create(createUserDto: CreateUserDto): Promise<UserDocument> {
-        // Check if email already exists
-        const existingUserByEmail = await this.userModel.findOne({
-            email: createUserDto.email,
+        // Check if phone already exists
+        const existingUserByPhone = await this.userModel.findOne({
+            phone: createUserDto.phone,
         });
-        if (existingUserByEmail) {
-            throw new ConflictException('Email already registered');
+        if (existingUserByPhone) {
+            throw new ConflictException('Phone number already registered');
         }
 
-        // Check if username already exists
-        const existingUserByUsername = await this.userModel.findOne({
-            username: createUserDto.username,
-        });
-        if (existingUserByUsername) {
-            throw new ConflictException('Username already taken');
+        // Check if email already exists (if provided)
+        if (createUserDto.email) {
+            const existingUserByEmail = await this.userModel.findOne({
+                email: createUserDto.email,
+            });
+            if (existingUserByEmail) {
+                throw new ConflictException('Email already registered');
+            }
         }
 
-        // Hash password
+        // Check if username already exists (if provided)
+        if (createUserDto.username) {
+            const existingUserByUsername = await this.userModel.findOne({
+                username: createUserDto.username,
+            });
+            if (existingUserByUsername) {
+                throw new ConflictException('Username already taken');
+            }
+        }
+
+        // Generate default username if not provided
+        const username = createUserDto.username || `user_${createUserDto.phone.replace(/\D/g, '').slice(-8)}`;
+
+        // Generate default email if not provided
+        const email = createUserDto.email || `${createUserDto.phone.replace(/\D/g, '')}@temp.nutriguide.com`;
+
+        // Hash password if provided, otherwise generate a random one
         const saltRounds = 12;
-        const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
+        const passwordToHash = createUserDto.password || Math.random().toString(36).slice(-12);
+        const hashedPassword = await bcrypt.hash(passwordToHash, saltRounds);
 
-        // Create user
-        const user = new this.userModel({
-            ...createUserDto,
+        // Create user with defaults
+        const userData = {
+            phone: createUserDto.phone,
+            email,
+            username,
             password: hashedPassword,
-        });
+            firstName: createUserDto.firstName || 'User',
+            lastName: createUserDto.lastName || '',
+            gender: createUserDto.gender,
+            birthDate: createUserDto.birthDate,
+            height: createUserDto.height,
+            weight: createUserDto.weight,
+            activityLevel: createUserDto.activityLevel,
+            isEmailVerified: createUserDto.isEmailVerified || false,
+        };
 
+        const user = new this.userModel(userData);
         return user.save();
     }
 

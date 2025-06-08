@@ -101,4 +101,10 @@ export class SmsCodeResponseDto {
         example: 60,
     })
     retryAfterSeconds?: number;
-} 
+
+    @ApiPropertyOptional({
+        description: 'Development environment note (only in development)',
+        example: 'Development mode: You can use 123456 as a universal verification code to save SMS costs',
+    })
+    developmentNote?: string;
+}

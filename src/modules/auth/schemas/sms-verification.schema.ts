@@ -47,6 +47,10 @@ export class SmsVerificationModel {
 
     @Prop({ required: false })
     lastAttemptAt?: Date;
+
+    // Timestamps (automatically added by Mongoose when timestamps: true)
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const SmsVerificationSchema = SchemaFactory.createForClass(SmsVerificationModel);

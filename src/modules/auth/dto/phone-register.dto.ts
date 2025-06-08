@@ -1,5 +1,4 @@
 import {
-    IsEmail,
     IsString,
     IsOptional,
     MinLength,
@@ -9,10 +8,14 @@ import {
     IsDateString,
     IsEnum,
     IsBoolean,
+    IsEmail,
+    IsNumber,
+    Min,
+    Max,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateUserDto {
+export class PhoneRegisterDto {
     @ApiProperty({
         description: 'User phone number (required)',
         example: '+8613800138000',
@@ -24,6 +27,18 @@ export class CreateUserDto {
         message: 'Please provide a valid phone number',
     })
     phone: string;
+
+    @ApiProperty({
+        description: 'SMS verification code',
+        example: '123456',
+        minLength: 4,
+        maxLength: 8,
+    })
+    @IsString({ message: 'SMS code must be a string' })
+    @IsNotEmpty({ message: 'SMS code is required' })
+    @MinLength(4, { message: 'SMS code must be at least 4 characters long' })
+    @MaxLength(8, { message: 'SMS code must not exceed 8 characters' })
+    smsCode: string;
 
     @ApiPropertyOptional({
         description: 'User email address',
@@ -50,8 +65,7 @@ export class CreateUserDto {
     username?: string;
 
     @ApiPropertyOptional({
-        description:
-            'User password (optional, can be set later)',
+        description: 'User password (optional, can be set later)',
         example: 'MySecurePass123!',
         minLength: 8,
     })
@@ -111,15 +125,21 @@ export class CreateUserDto {
         maximum: 300,
     })
     @IsOptional()
+    @IsNumber({}, { message: 'Height must be a number' })
+    @Min(50, { message: 'Height must be at least 50 cm' })
+    @Max(300, { message: 'Height must not exceed 300 cm' })
     height?: number;
 
     @ApiPropertyOptional({
         description: 'User weight in kilograms',
         example: 70.5,
-        minimum: 10,
+        minimum: 20,
         maximum: 500,
     })
     @IsOptional()
+    @IsNumber({}, { message: 'Weight must be a number' })
+    @Min(20, { message: 'Weight must be at least 20 kg' })
+    @Max(500, { message: 'Weight must not exceed 500 kg' })
     weight?: number;
 
     @ApiPropertyOptional({
@@ -129,21 +149,24 @@ export class CreateUserDto {
     })
     @IsOptional()
     @IsEnum(['sedentary', 'lightly-active', 'moderately-active', 'very-active', 'extra-active'], {
-        message:
-            'Activity level must be one of: sedentary, lightly-active, moderately-active, very-active, extra-active',
+        message: 'Activity level must be one of: sedentary, lightly-active, moderately-active, very-active, extra-active',
     })
-    activityLevel?:
-        | 'sedentary'
-        | 'lightly-active'
-        | 'moderately-active'
-        | 'very-active'
-        | 'extra-active';
+    activityLevel?: 'sedentary' | 'lightly-active' | 'moderately-active' | 'very-active' | 'extra-active';
 
     @ApiPropertyOptional({
-        description: 'Email verification status',
-        example: false,
+        description: 'Device ID for session management',
+        example: 'mobile-app-ios-12345',
     })
     @IsOptional()
-    @IsBoolean({ message: 'Email verification status must be a boolean' })
-    isEmailVerified?: boolean;
+    @IsString({ message: 'Device ID must be a string' })
+    deviceId?: string;
+
+    @ApiPropertyOptional({
+        description: 'Remember login session for extended period',
+        example: false,
+        default: false,
+    })
+    @IsOptional()
+    @IsBoolean({ message: 'Remember me must be a boolean' })
+    rememberMe?: boolean;
 }

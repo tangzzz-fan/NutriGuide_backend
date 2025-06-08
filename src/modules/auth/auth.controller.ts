@@ -37,6 +37,7 @@ import {
     RegisterResponseDto,
 } from './dto/auth-response.dto';
 import { RegisterDto } from './dto/register.dto';
+import { PhoneRegisterDto } from './dto/phone-register.dto';
 import { ResponseDto, ErrorResponseDto } from '../../common/dto/response.dto';
 
 @ApiTags('Authentication')
@@ -444,6 +445,40 @@ export class AuthController {
             HttpStatus.OK,
             'User profile retrieved successfully',
             profileData
+        );
+    }
+
+    /**
+     * Register with phone number and SMS verification
+     */
+    @Post('register/phone')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({
+        summary: 'Register with phone number',
+        description: 'Register a new user account using phone number and SMS verification. Only phone number is required, all other fields are optional.',
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'User registered successfully',
+        type: RegisterResponseDto,
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Bad Request - Invalid input data',
+        type: ErrorResponseDto,
+    })
+    @ApiResponse({
+        status: 409,
+        description: 'Conflict - Phone number, email, or username already exists',
+        type: ErrorResponseDto,
+    })
+    @ApiBody({ type: PhoneRegisterDto })
+    async registerWithPhone(@Body() phoneRegisterDto: PhoneRegisterDto): Promise<ResponseDto<RegisterResponseDto>> {
+        const result = await this.authService.registerWithPhone(phoneRegisterDto);
+        return new ResponseDto(
+            HttpStatus.CREATED,
+            'User registered with phone number successfully',
+            result
         );
     }
 

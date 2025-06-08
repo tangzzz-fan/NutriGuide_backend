@@ -28,7 +28,7 @@ import { FoodResponseDto, FoodListResponseDto } from './dto/food-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Foods')
-@Controller('api/v1/foods')
+@Controller('foods')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class FoodController {

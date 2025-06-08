@@ -391,6 +391,39 @@ MONGODB_URI=mongodb://localhost:27017/nutriguide_prod
 
 项目集成了 Swagger，在非生产环境中访问 `/api/docs` 查看完整的 API 文档。
 
+### 命令行友好的API信息
+
+除了Swagger UI，还提供了命令行友好的API信息端点：
+
+```bash
+# 获取完整API信息 (JSON格式)
+curl http://localhost:3000/api-info
+
+# 获取Markdown格式的API文档
+curl "http://localhost:3000/api-info?format=markdown"
+
+# 获取cURL示例
+curl "http://localhost:3000/api-info?format=curl"
+
+# 只获取认证相关信息
+curl "http://localhost:3000/api-info?section=auth"
+
+# 只获取端点列表
+curl "http://localhost:3000/api-info?section=endpoints"
+```
+
+支持的格式：
+- `json` (默认): JSON格式的结构化数据
+- `markdown`: Markdown格式的文档
+- `yaml`: YAML格式的配置
+- `curl`: cURL命令示例
+
+支持的部分：
+- `all` (默认): 完整信息
+- `auth`: 认证相关信息
+- `endpoints`: API端点列表
+- `examples`: 使用示例
+
 ## 开发规范
 
 项目遵循以下开发规范：
@@ -659,6 +692,10 @@ Once the application is running, access the Swagger documentation at:
 
 ### Authentication Endpoints
 
+#### Registration Methods
+- `POST /auth/register/phone` - **Register with phone number only (recommended)**
+- `POST /auth/register` - Traditional registration (all fields required)
+
 #### Login Methods
 - `POST /auth/login/email` - Email/Username + Password
 - `POST /auth/login/phone` - Phone + Password
@@ -669,6 +706,102 @@ Once the application is running, access the Swagger documentation at:
 #### SMS Verification
 - `POST /auth/sms/send` - Send SMS verification code
 - `POST /auth/sms/verify` - Verify SMS code
+
+#### 开发环境特殊功能
+
+**万能验证码**: 在开发环境中，可以使用 `123456` 作为万能验证码，适用于所有SMS验证场景，无需真实发送短信，节省开发成本。
+
+- **万能验证码**: `123456`
+- **适用环境**: 仅 `NODE_ENV=development`
+- **支持场景**: 登录、注册、密码重置、手机验证
+- **详细说明**: 查看 [开发环境特殊功能文档](docs/DEVELOPMENT_FEATURES.md)
+
+使用示例：
+```bash
+# 发送验证码（开发环境会提示可使用万能验证码）
+curl -X POST http://localhost:3000/api/v1/auth/sms/send \
+  -H "Content-Type: application/json" \
+  -d '{"phone": "13800138888", "type": "login"}'
+
+# 使用万能验证码登录
+curl -X POST http://localhost:3000/api/v1/auth/login/sms \
+  -H "Content-Type: application/json" \
+  -d '{"phone": "13800138888", "smsCode": "123456", "deviceId": "web-browser"}'
+```
+
+#### 📱 手机号注册 (推荐方式)
+
+**新的简化注册流程**: 用户只需要提供手机号即可完成注册，其他信息都是可选的。
+
+```bash
+# 1. 发送注册验证码
+curl -X POST http://localhost:3000/api/v1/auth/sms/send \
+  -H "Content-Type: application/json" \
+  -d '{"phone": "13900000001", "type": "register"}'
+
+# 2. 手机号注册（最简方式）
+curl -X POST http://localhost:3000/api/v1/auth/register/phone \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "13900000001",
+    "smsCode": "123456"
+  }'
+
+# 3. 手机号注册（包含可选信息）
+curl -X POST http://localhost:3000/api/v1/auth/register/phone \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "13900000001",
+    "smsCode": "123456",
+    "firstName": "张",
+    "lastName": "三",
+    "email": "zhangsan@example.com",
+    "password": "MySecurePass123!"
+  }'
+```
+
+**字段说明**:
+- ✅ **必须字段**: `phone`, `smsCode`
+- 🔧 **可选字段**: `email`, `username`, `password`, `firstName`, `lastName`, `birthDate`, `gender`, `height`, `weight`, `activityLevel`
+- 🎯 **自动生成**: 如果未提供，系统会自动生成 `username`、`email` 和随机 `password`
+
+#### 默认测试用户
+
+系统提供了以下默认测试用户，详细信息请查看 [默认用户文档](docs/DEFAULT_USERS.md)：
+
+- **管理员**: `admin@nutriguide.com` / `admin` / `Password123!`
+- **测试用户1**: `john.doe@example.com` / `johndoe` / `Password123!`
+- **测试用户2**: `jane.smith@example.com` / `janesmith` / `Password123!`
+- **测试用户3**: `test.user@example.com` / `testuser` / `Password123!`
+
+#### 改进的错误处理
+
+认证API现在提供更具体的错误信息：
+
+- `AUTH_001`: 用户不存在
+- `AUTH_002`: 密码错误
+- `AUTH_003`: 账户已停用
+- `AUTH_004`: 邮箱未验证
+- `AUTH_005`: 验证码无效或已过期
+- `AUTH_006`: 短信发送频率限制
+- `AUTH_007`: 邮箱已被注册
+- `AUTH_008`: 用户名已被占用
+- `AUTH_009`: 手机号已被注册
+- `AUTH_010`: 刷新令牌无效
+- `AUTH_011`: 第三方登录失败
+- `AUTH_012`: 一键登录失败
+
+错误响应示例：
+```json
+{
+  "statusCode": 401,
+  "message": "Invalid password",
+  "error": "INVALID_PASSWORD",
+  "details": "The provided password is incorrect",
+  "code": "AUTH_002",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
 
 #### Token Management
 - `POST /auth/refresh` - Refresh access token

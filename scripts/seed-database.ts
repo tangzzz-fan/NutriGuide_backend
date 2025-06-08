@@ -1,14 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { Model, Document, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { AppModule } from '../src/app.module';
 import { User, UserDocument } from '../src/modules/user/schemas/user.schema';
 import { UserProfile, UserProfileDocument, ActivityLevel, HealthGoal, HealthCondition } from '../src/modules/user/schemas/user-profile.schema';
 import { UserPreferences, UserPreferencesDocument, TastePreference, RegionalCuisine, DietaryRestriction, CookingSkill, BudgetLevel } from '../src/modules/user/schemas/user-preferences.schema';
-import { Food } from '../src/modules/food/schemas/food.schema';
-import sampleFoods from '../src/modules/food/data/sample-foods.json';
 
 /**
  * Database seeding script
@@ -22,7 +20,6 @@ async function seedDatabase() {
     const userModel = app.get<Model<UserDocument>>(getModelToken(User.name));
     const userProfileModel = app.get<Model<UserProfileDocument>>(getModelToken(UserProfile.name));
     const userPreferencesModel = app.get<Model<UserPreferencesDocument>>(getModelToken(UserPreferences.name));
-    const foodModel = app.get<Model<Food>>(getModelToken(Food.name));
 
     try {
         // Check if seeding is allowed
@@ -37,12 +34,11 @@ async function seedDatabase() {
         // Clear existing data (optional - comment out if you want to keep existing data)
         const clearData = process.argv.includes('--clear');
         if (clearData) {
-            console.log('🧹 Clearing existing data...');
+            console.log('🧹 Clearing existing user data...');
             await userModel.deleteMany({});
             await userProfileModel.deleteMany({});
             await userPreferencesModel.deleteMany({});
-            await foodModel.deleteMany({});
-            console.log('✅ Existing data cleared');
+            console.log('✅ Existing user data cleared');
         }
 
         // Seed users
@@ -53,9 +49,6 @@ async function seedDatabase() {
 
         // Seed user preferences
         await seedUserPreferences(userPreferencesModel, createdUsers);
-
-        // Seed foods
-        await seedFoods(foodModel);
 
         console.log('🎉 Database seeding completed successfully!');
     } catch (error) {
@@ -73,11 +66,12 @@ async function seedUsers(userModel: Model<UserDocument>): Promise<UserDocument[]
     console.log('👥 Seeding users...');
 
     const saltRounds = 10;
+    const defaultPassword = 'Password123!'; // Updated password with special character
     const testUsers = [
         {
             email: 'admin@nutriguide.com',
             username: 'admin',
-            password: await bcrypt.hash('password123', saltRounds),
+            password: await bcrypt.hash(defaultPassword, saltRounds),
             firstName: '管理员',
             lastName: '用户',
             gender: 'male',
@@ -89,7 +83,7 @@ async function seedUsers(userModel: Model<UserDocument>): Promise<UserDocument[]
         {
             email: 'john.doe@example.com',
             username: 'johndoe',
-            password: await bcrypt.hash('password123', saltRounds),
+            password: await bcrypt.hash(defaultPassword, saltRounds),
             firstName: 'John',
             lastName: 'Doe',
             gender: 'male',
@@ -101,7 +95,7 @@ async function seedUsers(userModel: Model<UserDocument>): Promise<UserDocument[]
         {
             email: 'jane.smith@example.com',
             username: 'janesmith',
-            password: await bcrypt.hash('password123', saltRounds),
+            password: await bcrypt.hash(defaultPassword, saltRounds),
             firstName: 'Jane',
             lastName: 'Smith',
             gender: 'female',
@@ -113,7 +107,7 @@ async function seedUsers(userModel: Model<UserDocument>): Promise<UserDocument[]
         {
             email: 'test.user@example.com',
             username: 'testuser',
-            password: await bcrypt.hash('password123', saltRounds),
+            password: await bcrypt.hash(defaultPassword, saltRounds),
             firstName: '测试',
             lastName: '用户',
             gender: 'other',
@@ -355,113 +349,7 @@ async function seedUserPreferences(userPreferencesModel: Model<UserPreferencesDo
     console.log(`📊 User preferences seeding completed`);
 }
 
-/**
- * Seed foods data
- */
-async function seedFoods(foodModel: Model<Food>) {
-    console.log('🍎 Seeding foods...');
 
-    // Add timestamp and verification status to sample foods
-    const foodsToSeed = sampleFoods.map(food => ({
-        ...food,
-        isActive: true,
-        isVerified: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }));
-
-    // Additional foods for more variety
-    const additionalFoods = [
-        {
-            name: '牛奶',
-            nameEn: 'Milk',
-            description: '全脂牛奶，富含蛋白质和钙质',
-            category: 'dairy',
-            subcategories: ['全脂奶制品'],
-            nutrition: {
-                calories: 42,
-                protein: 3.4,
-                carbohydrates: 5,
-                fat: 1,
-                fiber: 0,
-                sugar: 5,
-                sodium: 44,
-                potassium: 150,
-                calcium: 113,
-            },
-            commonUnits: ['毫升', '杯', '盒'],
-            allergens: ['乳制品'],
-            dietaryTags: ['素食'],
-            dataSource: 'manual',
-            isActive: true,
-            isVerified: true,
-        },
-        {
-            name: '鸡蛋',
-            nameEn: 'Egg',
-            description: '新鲜鸡蛋，优质蛋白质来源',
-            category: 'meat',
-            subcategories: ['禽蛋类'],
-            nutrition: {
-                calories: 155,
-                protein: 13,
-                carbohydrates: 1.1,
-                fat: 11,
-                fiber: 0,
-                sugar: 1.1,
-                sodium: 124,
-                potassium: 138,
-                iron: 1.8,
-            },
-            commonUnits: ['个', '只'],
-            allergens: ['蛋类'],
-            dietaryTags: ['高蛋白'],
-            dataSource: 'manual',
-            isActive: true,
-            isVerified: true,
-        },
-        {
-            name: '三文鱼',
-            nameEn: 'Salmon',
-            description: '新鲜三文鱼，富含Omega-3脂肪酸',
-            category: 'seafood',
-            subcategories: ['深海鱼类'],
-            nutrition: {
-                calories: 208,
-                protein: 20,
-                carbohydrates: 0,
-                fat: 13,
-                fiber: 0,
-                sugar: 0,
-                sodium: 59,
-                potassium: 363,
-                iron: 0.8,
-            },
-            commonUnits: ['克', '片', '块'],
-            allergens: ['鱼类'],
-            dietaryTags: ['高蛋白', '富含Omega-3'],
-            dataSource: 'manual',
-            isActive: true,
-            isVerified: true,
-        },
-    ];
-
-    const allFoods = [...foodsToSeed, ...additionalFoods];
-
-    for (const foodData of allFoods) {
-        const existingFood = await foodModel.findOne({ name: foodData.name });
-
-        if (!existingFood) {
-            const food = new foodModel(foodData);
-            await food.save();
-            console.log(`✅ Created food: ${foodData.name}`);
-        } else {
-            console.log(`⚠️  Food already exists: ${foodData.name}`);
-        }
-    }
-
-    console.log(`📊 Foods seeding completed`);
-}
 
 // Run the seeding script
 if (require.main === module) {

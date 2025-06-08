@@ -1,4 +1,19 @@
 import { Injectable, UnauthorizedException, BadRequestException, ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import {
+    UserNotFoundException,
+    InvalidPasswordException,
+    AccountDeactivatedException,
+    EmailNotVerifiedException,
+    InvalidSmsCodeException,
+    SmsRateLimitException,
+    EmailAlreadyExistsException,
+    UsernameAlreadyExistsException,
+    PhoneAlreadyExistsException,
+    InvalidRefreshTokenException,
+    InvalidSocialTokenException,
+    InvalidOneTapTokenException
+} from './exceptions/auth.exceptions';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -33,12 +48,14 @@ import {
 } from './interfaces/auth.interface';
 
 import { RegisterDto } from './dto/register.dto';
+import { PhoneRegisterDto } from './dto/phone-register.dto';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly userService: UserService,
         private readonly jwtService: JwtService,
+        private readonly configService: ConfigService,
         @InjectModel('AuthTokenModel') private readonly authTokenModel: Model<AuthTokenDocument>,
         @InjectModel('SmsVerificationModel') private readonly smsVerificationModel: Model<SmsVerificationDocument>,
         @InjectModel('SocialLoginModel') private readonly socialLoginModel: Model<SocialLoginDocument>,
@@ -53,18 +70,18 @@ export class AuthService {
         // Find user by email or username
         const user = await this.userService.findByEmailOrUsername(identifier);
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new UserNotFoundException(identifier);
         }
 
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new InvalidPasswordException();
         }
 
         // Check if user is active
         if (!user.isActive) {
-            throw new UnauthorizedException('Account is deactivated');
+            throw new AccountDeactivatedException();
         }
 
         // Update last login
@@ -83,18 +100,18 @@ export class AuthService {
         // Find user by phone
         const user = await this.userService.findByPhone(phone);
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new UserNotFoundException(phone);
         }
 
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new InvalidPasswordException();
         }
 
         // Check if user is active
         if (!user.isActive) {
-            throw new UnauthorizedException('Account is deactivated');
+            throw new AccountDeactivatedException();
         }
 
         // Update last login
@@ -113,7 +130,7 @@ export class AuthService {
         // Verify SMS code
         const isCodeValid = await this.verifySmsCode({ phone, code: smsCode, type: 'login' });
         if (!isCodeValid) {
-            throw new UnauthorizedException('Invalid or expired SMS code');
+            throw new InvalidSmsCodeException();
         }
 
         // Find or create user
@@ -125,14 +142,14 @@ export class AuthService {
                 phone,
                 email: `${phone.replace(/\D/g, '')}@temp.nutriguide.com`,
                 firstName: 'User',
-                lastName: '',
+                lastName: 'SMS',
                 password: await bcrypt.hash(uuidv4(), 12), // Random password
             });
         }
 
         // Check if user is active
         if (!user.isActive) {
-            throw new UnauthorizedException('Account is deactivated');
+            throw new AccountDeactivatedException();
         }
 
         // Update last login
@@ -151,7 +168,7 @@ export class AuthService {
         // Verify one-tap token (this would integrate with mobile SDK)
         const isTokenValid = await this.verifyOneTapToken(oneTapToken, phone);
         if (!isTokenValid) {
-            throw new UnauthorizedException('Invalid one-tap token');
+            throw new InvalidOneTapTokenException();
         }
 
         // Find or create user
@@ -170,7 +187,7 @@ export class AuthService {
 
         // Check if user is active
         if (!user.isActive) {
-            throw new UnauthorizedException('Account is deactivated');
+            throw new AccountDeactivatedException();
         }
 
         // Update last login
@@ -189,7 +206,7 @@ export class AuthService {
         // Verify social token and get user info
         const socialUserInfo = await this.verifySocialToken(provider, accessToken, idToken);
         if (!socialUserInfo) {
-            throw new UnauthorizedException('Invalid social login token');
+            throw new InvalidSocialTokenException(provider);
         }
 
         // Find existing social login
@@ -224,6 +241,7 @@ export class AuthService {
             if (!user) {
                 // Create new user
                 user = await this.userService.create({
+                    phone: `${provider}_${socialUserInfo.providerId.slice(-8)}`, // Temporary phone for social login
                     username: `${provider}_${socialUserInfo.providerId.slice(-8)}`,
                     email: socialUserInfo.email || `${provider}_${socialUserInfo.providerId}@temp.nutriguide.com`,
                     firstName: socialUserInfo.name?.split(' ')[0] || 'User',
@@ -248,7 +266,7 @@ export class AuthService {
 
         // Check if user is active
         if (!user.isActive) {
-            throw new UnauthorizedException('Account is deactivated');
+            throw new AccountDeactivatedException();
         }
 
         // Update last login
@@ -261,7 +279,7 @@ export class AuthService {
     /**
      * Send SMS verification code
      */
-    async sendSmsCode(sendSmsDto: SendSmsCodeDto): Promise<{ success: boolean; message: string; expiryMinutes: number }> {
+    async sendSmsCode(sendSmsDto: SendSmsCodeDto): Promise<{ success: boolean; message: string; expiryMinutes: number; developmentNote?: string }> {
         const { phone, type } = sendSmsDto;
 
         // Check rate limiting - one SMS per minute
@@ -272,7 +290,8 @@ export class AuthService {
         });
 
         if (recentSms) {
-            throw new BadRequestException('SMS code already sent. Please wait before requesting a new one.');
+            const waitTime = Math.ceil((60000 - (Date.now() - recentSms.createdAt.getTime())) / 1000);
+            throw new SmsRateLimitException(waitTime);
         }
 
         // Generate 6-digit code
@@ -290,11 +309,20 @@ export class AuthService {
         // Send SMS (integrate with SMS service provider)
         await this.sendSmsMessage(phone, `Your NutriGuide verification code is: ${code}. Valid for 5 minutes.`);
 
-        return {
+        // Development environment: Provide additional information
+        const env = this.configService.get('env.NODE_ENV');
+        const response: any = {
             success: true,
             message: 'SMS code sent successfully',
             expiryMinutes: 5,
         };
+
+        if (env === 'development') {
+            response.developmentNote = 'Development mode: You can use 123456 as a universal verification code to save SMS costs';
+            console.log(`🔧 Development mode: SMS code ${code} sent to ${phone}, or use universal code 123456`);
+        }
+
+        return response;
     }
 
     /**
@@ -302,6 +330,13 @@ export class AuthService {
      */
     async verifySmsCode(verifyDto: VerifySmsCodeDto): Promise<boolean> {
         const { phone, code, type } = verifyDto;
+
+        // Development environment: Allow universal verification code 123456
+        const env = this.configService.get('env.NODE_ENV');
+        if (env === 'development' && code === '123456') {
+            console.log(`🔧 Development mode: Universal SMS code 123456 used for ${phone}`);
+            return true;
+        }
 
         const smsVerification = await this.smsVerificationModel.findOne({
             phone,
@@ -342,13 +377,16 @@ export class AuthService {
         });
 
         if (!tokenRecord) {
-            throw new UnauthorizedException('Invalid or expired refresh token');
+            throw new InvalidRefreshTokenException();
         }
 
         // Get user
         const user = await this.userService.findById(tokenRecord.userId.toString());
-        if (!user || !user.isActive) {
-            throw new UnauthorizedException('User not found or inactive');
+        if (!user) {
+            throw new UserNotFoundException();
+        }
+        if (!user.isActive) {
+            throw new AccountDeactivatedException();
         }
 
         // Generate new tokens
@@ -509,6 +547,7 @@ export class AuthService {
     ): Promise<SocialLoginResult | null> {
         // TODO: Integrate with actual social provider APIs
         // For now, return mock data for testing
+        console.log(`Verifying ${provider} token: ${accessToken}, idToken: ${idToken || 'none'}`);
 
         if (!accessToken.startsWith('social-')) {
             return null;
@@ -538,34 +577,36 @@ export class AuthService {
      * User registration with auto-login
      */
     async register(registerDto: RegisterDto): Promise<RegisterResponseDto> {
-        // Check if email already exists
-        const existingUserByEmail = await this.userService.findByEmail(registerDto.email);
-        if (existingUserByEmail) {
-            throw new ConflictException('Email already exists');
+        // Check if phone already exists
+        const existingUserByPhone = await this.userService.findByPhone(registerDto.phone);
+        if (existingUserByPhone) {
+            throw new PhoneAlreadyExistsException(registerDto.phone);
         }
 
-        // Check if username already exists
-        const existingUserByUsername = await this.userService.findByUsername(registerDto.username);
-        if (existingUserByUsername) {
-            throw new ConflictException('Username already exists');
+        // Check if email already exists (if provided)
+        if (registerDto.email) {
+            const existingUserByEmail = await this.userService.findByEmail(registerDto.email);
+            if (existingUserByEmail) {
+                throw new EmailAlreadyExistsException(registerDto.email);
+            }
         }
 
-        // Check if phone already exists (if provided)
-        if (registerDto.phone) {
-            const existingUserByPhone = await this.userService.findByPhone(registerDto.phone);
-            if (existingUserByPhone) {
-                throw new ConflictException('Phone number already exists');
+        // Check if username already exists (if provided)
+        if (registerDto.username) {
+            const existingUserByUsername = await this.userService.findByUsername(registerDto.username);
+            if (existingUserByUsername) {
+                throw new UsernameAlreadyExistsException(registerDto.username);
             }
         }
 
         // Create new user
         const newUser = await this.userService.create({
+            phone: registerDto.phone,
             email: registerDto.email,
             username: registerDto.username,
             password: registerDto.password,
             firstName: registerDto.firstName,
             lastName: registerDto.lastName,
-            phone: registerDto.phone,
             birthDate: registerDto.birthDate,
             gender: registerDto.gender,
             height: registerDto.height,
@@ -594,7 +635,88 @@ export class AuthService {
             refreshExpiresIn: authResponse.refreshExpiresIn,
             message: 'User registered and logged in successfully',
             requiresEmailVerification: !newUser.isEmailVerified,
-            requiresPhoneVerification: registerDto.phone ? false : undefined, // TODO: Implement phone verification
+            requiresPhoneVerification: false, // Phone is already verified via SMS during registration
+        };
+
+        return registerResponse;
+    }
+
+    /**
+     * Phone number registration with SMS verification
+     */
+    async registerWithPhone(phoneRegisterDto: PhoneRegisterDto): Promise<RegisterResponseDto> {
+        const { phone, smsCode, ...userData } = phoneRegisterDto;
+
+        // Verify SMS code first
+        const smsVerified = await this.verifySmsCode({
+            phone,
+            code: smsCode,
+            type: 'register',
+        });
+
+        if (!smsVerified) {
+            throw new InvalidSmsCodeException();
+        }
+
+        // Check if phone already exists
+        const existingUserByPhone = await this.userService.findByPhone(phone);
+        if (existingUserByPhone) {
+            throw new PhoneAlreadyExistsException(phone);
+        }
+
+        // Check if email already exists (if provided)
+        if (userData.email) {
+            const existingUserByEmail = await this.userService.findByEmail(userData.email);
+            if (existingUserByEmail) {
+                throw new EmailAlreadyExistsException(userData.email);
+            }
+        }
+
+        // Check if username already exists (if provided)
+        if (userData.username) {
+            const existingUserByUsername = await this.userService.findByUsername(userData.username);
+            if (existingUserByUsername) {
+                throw new UsernameAlreadyExistsException(userData.username);
+            }
+        }
+
+        // Create new user
+        const newUser = await this.userService.create({
+            phone,
+            email: userData.email,
+            username: userData.username,
+            password: userData.password,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            birthDate: userData.birthDate,
+            gender: userData.gender,
+            height: userData.height,
+            weight: userData.weight,
+            activityLevel: userData.activityLevel,
+            isEmailVerified: false,
+        });
+
+        // Update last login
+        await this.userService.updateLastLogin(newUser._id.toString());
+
+        // Generate auth tokens (auto-login)
+        const authResponse = await this.generateAuthResponse(
+            newUser,
+            userData.deviceId,
+            userData.rememberMe
+        );
+
+        // Prepare registration response
+        const registerResponse: RegisterResponseDto = {
+            user: authResponse.user,
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+            tokenType: authResponse.tokenType,
+            expiresIn: authResponse.expiresIn,
+            refreshExpiresIn: authResponse.refreshExpiresIn,
+            message: 'User registered with phone number successfully',
+            requiresEmailVerification: userData.email ? !newUser.isEmailVerified : false,
+            requiresPhoneVerification: false, // Phone is already verified via SMS
         };
 
         return registerResponse;
