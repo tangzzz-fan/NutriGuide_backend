@@ -196,8 +196,75 @@ npm run docker:down
 
 ### 环境对应的数据库
 
-- **开发环境**: `nutriguide_dev` (端口: 27017)
-- **QA环境**: `nutriguide_qa` (端口: 27018)
+项目支持三个独立的数据库环境，确保开发、测试和生产数据的隔离：
+
+- **开发环境**: `nutriguide` (端口: 27017)
+- **QA环境**: `nutriguide_qa` (端口: 27017)
+- **生产环境**: `nutriguide_prod` (端口: 27017)
+
+### 数据库集合命名规范
+
+所有集合名称统一使用 `snake_case` 格式，主要集合包括：
+
+#### 核心业务集合
+- `users` - 用户信息
+- `authtokens` - 认证令牌
+- `foods` - 食物数据库
+
+#### 营养计划集合
+- `meal_plans` - 营养计划
+- `structured_meal_plans` - 结构化营养计划
+- `seasonal_meal_plans` - 季节性营养计划
+- `sample_meal_plans` - 示例营养计划
+
+#### 食物相关集合
+- `food_exchange_items` - 食物交换项目
+- `food_exchange_table_complete` - 完整食物交换表
+- `food_category_advice` - 食物类别建议
+- `food_category_advice_detailed` - 详细食物类别建议
+- `food_choices_guide` - 食物选择指南
+- `food_selection_guide_complete` - 完整食物选择指南
+- `food_medicine_substances` - 食物药物成分
+
+#### 中医相关集合
+- `tcm_dietary_recipes` - 中医饮食食谱
+- `tcm_obesity_syndromes` - 中医肥胖综合征
+- `tcm_food_medicine_recommendations` - 中医食药建议
+
+#### 参考数据集合
+- `dietary_principles` - 饮食原则
+- `dietary_recommendations` - 饮食建议
+- `obesity_standards` - 肥胖标准
+- `intensity_levels` - 强度等级
+- `physical_activities` - 体力活动
+- `energy_calculation_formulas` - 能量计算公式
+- `reference_tables` - 参考表
+- `regional_food_availability` - 地区食物可用性
+- `guide_introduction` - 指南介绍
+
+### 数据库管理命令
+
+```bash
+# 数据库恢复 (从备份恢复数据)
+npm run db:restore          # 开发环境
+npm run db:restore:qa       # QA环境
+npm run db:restore:prod     # 生产环境
+
+# 环境数据恢复 (使用简化脚本)
+npm run db:restore:env development
+npm run db:restore:env qa
+npm run db:restore:env prod
+
+# 集合名称标准化
+npm run db:normalize development
+npm run db:normalize qa
+npm run db:normalize prod
+
+# 数据库种子数据
+npm run db:seed             # 开发环境种子数据
+npm run db:seed:clear       # 清空并重新种子
+npm run db:seed:qa          # QA环境种子数据
+```
 - **生产环境**: `nutriguide_prod` (端口: 27019)
 
 ### 数据库初始化
