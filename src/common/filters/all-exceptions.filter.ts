@@ -32,13 +32,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
         error = exception.message;
       } else if (typeof exceptionResponse === 'object') {
         const responseObj = exceptionResponse as any;
-        message = responseObj.message || exception.message;
-        error = responseObj.error || exception.message;
-        errors = responseObj.message
-          ? Array.isArray(responseObj.message)
-            ? responseObj.message
-            : undefined
-          : undefined;
+
+        // Handle validation errors with detailed field information
+        if (responseObj.errors && Array.isArray(responseObj.errors)) {
+          errors = responseObj.errors;
+          const fieldNames = errors.map(err => err.field).join(', ');
+          message = `Validation failed for fields: ${fieldNames}`;
+          error = responseObj.error || 'Validation Error';
+        } else {
+          message = responseObj.message || exception.message;
+          error = responseObj.error || exception.message;
+          errors = responseObj.message
+            ? Array.isArray(responseObj.message)
+              ? responseObj.message
+              : undefined
+            : undefined;
+        }
       } else {
         message = exception.message;
         error = exception.message;
@@ -51,11 +60,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const errorResponse = new ErrorResponseDto(status, message, error, errors);
 
-    // Log the error
-    this.logger.error(
-      `${request.method} ${request.url} - ${status} - ${message}`,
-      exception instanceof Error ? exception.stack : undefined
-    );
+    // Log the error with more details for validation errors
+    if (status === 400 && errors && errors.length > 0) {
+      const validationDetails = errors.map(err =>
+        `${err.field}: ${err.message} (received: ${JSON.stringify(err.value)})`
+      ).join('; ');
+      this.logger.error(
+        `${request.method} ${request.url} - ${status} - Validation Error: ${validationDetails}`,
+        exception instanceof Error ? exception.stack : undefined
+      );
+    } else {
+      this.logger.error(
+        `${request.method} ${request.url} - ${status} - ${message}`,
+        exception instanceof Error ? exception.stack : undefined
+      );
+    }
 
     response.status(status).json(errorResponse);
   }

@@ -57,13 +57,13 @@ export class EmailPasswordLoginDto extends BaseLoginDto {
  */
 export class PhonePasswordLoginDto extends BaseLoginDto {
     @ApiProperty({
-        description: 'Phone number',
-        example: '+8613812345678',
+        description: 'Phone number. Can include country code with + prefix or without.',
+        example: '+8613800138000 or 13800138000',
     })
     @IsString({ message: 'Phone number must be a string' })
     @IsNotEmpty({ message: 'Phone number is required' })
-    @Matches(/^\+?[1-9]\d{1,14}$/, {
-        message: 'Please provide a valid phone number',
+    @Matches(/^(\+?[1-9]\d{1,14}|1[3-9]\d{9})$/, {
+        message: 'Please provide a valid phone number. Examples: +8613800138000, 13800138000',
     })
     phone: string;
 
@@ -83,13 +83,13 @@ export class PhonePasswordLoginDto extends BaseLoginDto {
  */
 export class PhoneSmsLoginDto extends BaseLoginDto {
     @ApiProperty({
-        description: 'Phone number',
-        example: '+8613812345678',
+        description: 'Phone number. Can include country code with + prefix or without.',
+        example: '+8613800138000 or 13800138000',
     })
     @IsString({ message: 'Phone number must be a string' })
     @IsNotEmpty({ message: 'Phone number is required' })
-    @Matches(/^\+?[1-9]\d{1,14}$/, {
-        message: 'Please provide a valid phone number',
+    @Matches(/^(\+?[1-9]\d{1,14}|1[3-9]\d{9})$/, {
+        message: 'Please provide a valid phone number. Examples: +8613800138000, 13800138000',
     })
     phone: string;
 
@@ -112,13 +112,13 @@ export class PhoneSmsLoginDto extends BaseLoginDto {
  */
 export class PhoneOneTapLoginDto extends BaseLoginDto {
     @ApiProperty({
-        description: 'Phone number',
-        example: '+8613812345678',
+        description: 'Phone number. Can include country code with + prefix or without.',
+        example: '+8613800138000 or 13800138000',
     })
     @IsString({ message: 'Phone number must be a string' })
     @IsNotEmpty({ message: 'Phone number is required' })
-    @Matches(/^\+?[1-9]\d{1,14}$/, {
-        message: 'Please provide a valid phone number',
+    @Matches(/^(\+?[1-9]\d{1,14}|1[3-9]\d{9})$/, {
+        message: 'Please provide a valid phone number. Examples: +8613800138000, 13800138000',
     })
     phone: string;
 
