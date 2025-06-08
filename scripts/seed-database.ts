@@ -112,6 +112,7 @@ async function seedUsers(userModel: Model<UserDocument>): Promise<UserDocument[]
             lastName: '用户',
             gender: 'other',
             birthYear: 1995,
+            phone: '13800138003',
             isActive: true,
             isEmailVerified: false,
         },
