@@ -76,22 +76,24 @@ describe('FoodService', () => {
                 },
             };
 
-            const saveMock = jest.fn().mockResolvedValue(mockFood);
-            const constructorMock = jest.fn().mockImplementation(() => ({
-                ...mockFood,
-                save: saveMock,
-            }));
+            const savedFood = { ...mockFood, save: jest.fn().mockResolvedValue(mockFood) };
+            const ModelConstructor = jest.fn().mockImplementation(() => savedFood);
 
+            // Mock existing food checks
             jest.spyOn(model, 'findOne').mockResolvedValue(null);
-            (model as any).mockImplementation = constructorMock;
-            Object.setPrototypeOf(model, constructorMock);
 
-            // Mock the service's internal use of the model constructor
-            jest.spyOn(service as any, 'foodModel', 'get').mockReturnValue(constructorMock);
+            // Replace the model in the service
+            (service as any).foodModel = Object.assign(ModelConstructor, model);
 
             const result = await service.create(createFoodDto);
 
-            expect(saveMock).toHaveBeenCalled();
+            expect(ModelConstructor).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    name: createFoodDto.name,
+                    category: createFoodDto.category,
+                })
+            );
+            expect(savedFood.save).toHaveBeenCalled();
             expect(result).toEqual(mockFood);
         });
 

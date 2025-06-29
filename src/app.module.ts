@@ -10,6 +10,11 @@ import databaseConfig from './config/database.config';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FoodModule } from './modules/food/food.module';
+import { FoodLogsModule } from './modules/food-logs/food-logs.module';
+import { NutritionModule } from './modules/nutrition/nutrition.module';
+import { MealPlansModule } from './modules/meal-plans/meal-plans.module';
+import { RecipesModule } from './modules/recipes/recipes.module';
+import { RecommendationsModule } from './modules/recommendations/recommendations.module';
 
 @Module({
     imports: [
@@ -38,6 +43,11 @@ import { FoodModule } from './modules/food/food.module';
         UserModule,
         AuthModule,
         FoodModule,
+        FoodLogsModule,
+        NutritionModule,
+        MealPlansModule,
+        RecipesModule,
+        RecommendationsModule,
     ],
     controllers: [AppController],
     providers: [

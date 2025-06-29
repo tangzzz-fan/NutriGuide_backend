@@ -79,11 +79,13 @@ describe('UserService', () => {
             password: 'Password123!',
             firstName: 'New',
             lastName: 'User',
+            phone: '+1234567890',
         };
 
         it('should create a new user successfully', async () => {
             // Arrange
-            mockUserModel.findOne.mockResolvedValueOnce(null); // Email not found
+            mockUserModel.findOne.mockResolvedValueOnce(null); // Phone not found
+            mockUserModel.findOne.mockResolvedValueOnce(null); // Email not found  
             mockUserModel.findOne.mockResolvedValueOnce(null); // Username not found
             mockedBcrypt.hash.mockResolvedValue('hashedPassword' as never);
 
@@ -112,14 +114,25 @@ describe('UserService', () => {
             await service.create(createUserDto);
 
             // Assert
-            expect(mockUserModel.findOne).toHaveBeenCalledTimes(2);
+            expect(mockUserModel.findOne).toHaveBeenCalledTimes(3); // phone, email, username
             expect(mockedBcrypt.hash).toHaveBeenCalledWith(createUserDto.password, 12);
             expect(mockSave).toHaveBeenCalled();
         });
 
+        it('should throw ConflictException if phone already exists', async () => {
+            // Arrange
+            mockUserModel.findOne.mockResolvedValueOnce(mockUser); // Phone found
+
+            // Act & Assert
+            await expect(service.create(createUserDto)).rejects.toThrow(
+                new ConflictException('Phone number already registered')
+            );
+        });
+
         it('should throw ConflictException if email already exists', async () => {
             // Arrange
-            mockUserModel.findOne.mockResolvedValueOnce(mockUser);
+            mockUserModel.findOne.mockResolvedValueOnce(null); // Phone not found
+            mockUserModel.findOne.mockResolvedValueOnce(mockUser); // Email found
 
             // Act & Assert
             await expect(service.create(createUserDto)).rejects.toThrow(
@@ -129,6 +142,7 @@ describe('UserService', () => {
 
         it('should throw ConflictException if username already exists', async () => {
             // Arrange
+            mockUserModel.findOne.mockResolvedValueOnce(null); // Phone not found
             mockUserModel.findOne.mockResolvedValueOnce(null); // Email not found
             mockUserModel.findOne.mockResolvedValueOnce(mockUser); // Username found
 

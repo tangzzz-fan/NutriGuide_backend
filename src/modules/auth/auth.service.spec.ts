@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -51,6 +52,21 @@ describe('AuthService', () => {
         sign: jest.fn(),
     };
 
+    const mockConfigService = {
+        get: jest.fn().mockImplementation((key: string) => {
+            const config = {
+                'jwt.secret': 'test-secret',
+                'jwt.expiresIn': '1h',
+                'jwt.refreshTokenExpiresIn': '7d',
+                'sms.enabled': true,
+                'sms.codeExpirationMinutes': 5,
+                'auth.maxLoginAttempts': 5,
+                'auth.lockoutDurationMinutes': 15,
+            };
+            return config[key];
+        }),
+    };
+
     const mockAuthTokenModel = {
         findOne: jest.fn(),
         updateOne: jest.fn(),
@@ -82,6 +98,10 @@ describe('AuthService', () => {
                 {
                     provide: JwtService,
                     useValue: mockJwtService,
+                },
+                {
+                    provide: ConfigService,
+                    useValue: mockConfigService,
                 },
                 {
                     provide: getModelToken('AuthTokenModel'),

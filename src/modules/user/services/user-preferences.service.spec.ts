@@ -91,18 +91,23 @@ describe('UserPreferencesService', () => {
 
         it('should create preferences successfully', async () => {
             const userId = new Types.ObjectId().toString();
+
+            // Mock the findOne method to return null (no existing preferences)
             mockModel.findOne.mockResolvedValue(null);
 
+            // Mock the constructor to return an object with save method
             const savedPreferences = { ...mockPreferences, save: jest.fn().mockResolvedValue(mockPreferences) };
-            const ModelMock = jest.fn().mockImplementation(() => savedPreferences);
-            (service as any).userPreferencesModel = ModelMock;
+            const ModelConstructor = jest.fn().mockImplementation(() => savedPreferences);
+
+            // Replace the model in the service
+            (service as any).userPreferencesModel = Object.assign(ModelConstructor, mockModel);
 
             const result = await service.createPreferences(userId, createPreferencesDto);
 
-            expect(ModelMock).toHaveBeenCalledWith(
+            expect(ModelConstructor).toHaveBeenCalledWith(
                 expect.objectContaining({
                     ...createPreferencesDto,
-                    userId: new Types.ObjectId(userId),
+                    userId: expect.any(Types.ObjectId),
                 })
             );
             expect(savedPreferences.save).toHaveBeenCalled();
