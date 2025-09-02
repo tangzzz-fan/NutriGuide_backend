@@ -33,6 +33,29 @@ export class AppService {
         status: 'OK',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
+        apiInfo: {
+          baseUrl: 'http://localhost:3000',
+          version: '1.0.0',
+          availableEndpoints: {
+            auth: {
+              emailLogin: 'POST /api/v1/auth/login/email',
+              phoneLogin: 'POST /api/v1/auth/login/phone',
+              smsLogin: 'POST /api/v1/auth/login/sms',
+              register: 'POST /api/v1/auth/register',
+              logout: 'POST /api/v1/auth/logout'
+            },
+            system: {
+              health: 'GET /health',
+              apiInfo: 'GET /api-info'
+            }
+          },
+          testAccounts: {
+            email: 'test@nutriguide.com',
+            phone: '13900139000',
+            password: 'Password123!'
+          },
+          universalSmsCode: '123456'
+        }
       },
     };
   }
@@ -68,18 +91,19 @@ export class AppService {
       ],
       defaultUsers: [
         {
-          role: 'Admin',
+          role: 'Test User',
+          email: 'test@nutriguide.com',
+          phone: '13900139000',
+          username: 'testuser',
+          password: 'Password123!',
+          description: 'Primary test account - fully functional'
+        },
+        {
+          role: 'Legacy Test',
           email: 'admin@nutriguide.com',
           username: 'admin',
           password: 'Password123!',
-          description: 'Default administrator account'
-        },
-        {
-          role: 'Test User',
-          email: 'john.doe@example.com',
-          username: 'johndoe',
-          password: 'Password123!',
-          description: 'Test user account'
+          description: 'Default administrator account (if exists)'
         }
       ],
       tokenExpiry: envConfig.JWT_EXPIRES_IN || '7d',
