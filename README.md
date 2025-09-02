@@ -1,196 +1,366 @@
-# NutriGuide Backend API
+# 🥗 NutriGuide Backend API
 
-NutriGuide 后端 API 服务 - MVP 阶段
+**NutriGuide 智能营养指导平台后端服务 - MVP 阶段**
 
-## 项目简介
+[![NestJS](https://img.shields.io/badge/NestJS-10.0+-red.svg)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.1+-blue.svg)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-5.0+-green.svg)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-Private-lightgrey.svg)]()
 
-NutriGuide 是一个智能营养指导平台的后端服务，基于 NestJS 框架开发，提供用户管理、食物数据库、营养分析等核心功能。
+## 🌟 项目简介
 
-## 技术栈
+**NutriGuide** 是一个现代化的智能营养指导平台后端 API 服务，基于 NestJS 框架开发。项目提供完整的用户管理、食物数据库、营养分析、智能推荐等核心功能，帮助用户实现个性化的营养管理和健康目标。
 
-- **框架**: NestJS (Node.js)
-- **语言**: TypeScript
-- **数据库**: MongoDB (Mongoose ODM)
-- **认证**: JWT
-- **文档**: Swagger/OpenAPI
-- **测试**: Jest
-- **代码规范**: ESLint + Prettier
-- **容器化**: Docker & Docker Compose
+### ✨ 核心特色
+- 🔐 **多样化认证**：支持邮箱、手机、短信、社交等多种登录方式
+- 🍎 **智能食物库**：丰富的食物数据库和营养分析功能
+- 📊 **数据驱动**：基于科学数据的营养分析和健康建议
+- 🎯 **个性化推荐**：AI 驱动的智能营养计划推荐
+- 🏗️ **模块化架构**：清晰的代码结构和高度可扩展性
+- 🐳 **容器化部署**：完整的 Docker 多环境支持
 
-## 项目结构
+## 🛠️ 技术栈
 
+- 🏗️ **框架**: NestJS 10.0+ (Node.js)
+- 🗺️ **语言**: TypeScript 5.1+
+- 🗺️ **数据库**: MongoDB 5.0+ (Mongoose ODM)
+- 🔐 **认证**: JWT + Passport
+- 📝 **文档**: Swagger/OpenAPI 3.0
+- 🧪 **测试**: Jest + Supertest
+- 📎 **代码规范**: ESLint + Prettier
+- 🐳 **容器化**: Docker + Docker Compose
+
+### 🎆 架构特点
+- ⚙️ **微服务就绪**：模块化设计，支持水平扩展
+- 🔄 **依赖注入**：NestJS IoC 容器管理依赖
+- 🛡️ **全局异常处理**：统一的错误处理和响应格式
+- 🔍 **请求验证**：基于 class-validator 的数据验证
+- 🎯 **智能缓存**：多层级缓存策略优化性能
+
+## 🏗️ 项目架构
+
+### 📋 目录结构
 ```
 src/
-├── common/           # 通用模块
+├── common/           # 🚀 通用模块（DTO、过滤器、守卫等）
 │   ├── dto/         # 数据传输对象
-│   ├── filters/     # 异常过滤器
-│   ├── guards/      # 守卫
-│   ├── decorators/  # 装饰器
-│   └── interfaces/  # 接口定义
-├── config/          # 配置文件
+│   └── filters/     # 全局异常过滤器
+├── config/          # ⚙️ 配置文件（环境、数据库）
 │   ├── environment.config.ts  # 环境配置
 │   └── database.config.ts     # 数据库配置
-├── modules/         # 业务模块
-├── shared/          # 共享模块
-├── app.module.ts    # 主应用模块
-├── app.controller.ts # 主控制器
-├── app.service.ts   # 主服务
-└── main.ts          # 应用入口
+└── modules/         # 🧾 业务功能模块
+    ├── auth/        # 🔐 认证授权模块
+    │   ├── dto/         # 认证相关 DTO
+    │   ├── guards/      # JWT 守卫
+    │   ├── strategies/  # Passport 策略
+    │   └── schemas/     # 认证相关数据模型
+    ├── user/        # 👤 用户管理模块
+    ├── food/        # 🍎 食物数据库模块
+    ├── food-logs/   # 📝 食物日志模块
+    ├── nutrition/   # 📊 营养分析模块
+    ├── meal-plans/  # 🍽️ 膀食计划模块
+    ├── recipes/     # 👨‍🍳 食谱管理模块
+    └── recommendations/ # 🎯 智能推荐模块
 ```
 
-## 环境要求
+### 🎆 功能模块详解
 
-- Node.js >= 18.0.0
-- npm >= 8.0.0
-- MongoDB >= 5.0.0
-- Docker >= 20.0.0 (可选)
-- Docker Compose >= 2.0.0 (可选)
+#### 🔐 **认证授权系统** (`auth/`)
+- **多样化登录**：邮箱/用户名 + 密码、手机 + 密码、短信验证码、一键登录、社交登录
+- **JWT 认证**：访问令牌（1小时）+ 刷新令牌（30-60天）
+- **短信服务**：6位验证码，5分钟过期，1分钟限频
+- **安全特性**：设备级令牌管理、密码 bcrypt 加密（12 salt rounds）
 
-## 多环境配置
+#### 👤 **用户管理系统** (`user/`)
+- **基础信息**：完整的用户 CRUD 操作、账户状态管理
+- **个人资料**：身高、体重、活动水平等健康指标
+- **用户偏好**：饮食偏好、营养目标、过敏信息
+- **数据统计**：用户统计分析、软删除机制
 
-项目支持三种环境：`development`、`qa`、`production`
+#### 🍎 **食物数据库** (`food/`)
+- **食物信息**：丰富的食物数据库和营养成分信息
+- **智能搜索**：多维度食物搜索和筛选功能
+- **分类管理**：食物分类统计和管理
+- **条形码识别**：支持条形码快速查找食物
 
-### 环境配置文件
+#### 📝 **食物日志系统** (`food-logs/`)
+- **饮食记录**：用户日常饮食摄入记录
+- **营养计算**：自动计算每日营养摄入量
+- **日期查询**：按日期、周、月查看记录
+- **趋势分析**：营养摄入趋势监控
 
-- `.env.development` - 开发环境配置
-- `.env.qa` - QA测试环境配置
-- `.env.production` - 生产环境配置
-- `.env.example` - 配置模板文件
+#### 📊 **营养分析系统** (`nutrition/`)
+- **综合分析**：日/周/月营养摄入分析
+- **目标对比**：实际摄入与目标值对比
+- **健康评估**：BMR/TDEE 计算、宏量营养素分析
+- **个性化建议**：基于数据的营养建议
 
-### 快速环境切换
+#### 🍽️ **膳食计划管理** (`meal-plans/`)
+- **计划创建**：个性化膳食计划创建和管理
+- **目标导向**：基于用户目标的计划制定
+- **灵活调整**：计划的修改和优化
+- **营养均衡**：确保营养均衡和目标达成
+
+#### 👨‍🍳 **食谱管理系统** (`recipes/`)
+- **食谱创建**：详细的食谱信息和烹饪步骤
+- **营养计算**：食谱营养价值自动计算
+- **个人收藏**：用户食谱收藏和管理
+- **分享功能**：食谱分享和交流社区
+
+#### 🎯 **智能推荐系统** (`recommendations/`)
+- **食物推荐**：基于用户偏好和历史数据的食物推荐
+- **膳食推荐**：个性化膳食计划推荐
+- **反馈机制**：推荐质量反馈和优化
+- **机器学习**：基于用户行为的智能优化
+
+## 📎 环境要求
+
+### 必须工具
+- 🚀 **Node.js** >= 18.0.0
+- 📦 **npm** >= 8.0.0 或 **yarn** >= 1.22.0
+- 🍃 **MongoDB** >= 5.0.0
+- 🐳 **Docker** >= 20.0.0 (可选，推荐)
+- 💙 **Docker Compose** >= 2.0.0 (可选，推荐)
+
+### 🗺️ 开发环境推荐
+- **操作系统**: macOS / Linux / Windows (WSL2)
+- **IDE**: VS Code + NestJS 插件
+- **版本管理**: Git 2.30+
+- **网络**: 稳定的互联网连接（用于依赖安装）
+
+## 🌍 多环境配置
+
+项目支持三种环境：`development`、`qa`、`production`，确保开发、测试和生产数据的完全隔离。
+
+### 📝 环境配置文件
+
+| 环境 | 配置文件 | 数据库 | 端口 | Swagger | 特点 |
+|------|-------------|----------|------|---------|--------|
+| 🗺️ **开发环境** | `.env.development` | `nutriguide_dev` | 3000 | ✅ 启用 | 热重载、详细日志、测试数据 |
+| 🧪 **QA 环境** | `.env.qa` | `nutriguide_qa` | 3000 | ✅ 启用 | 模拟生产、性能测试 |
+| 🎆 **生产环境** | `.env.production` | `nutriguide_prod` | 3000 | ❌ 禁用 | 安全优化、性能优化 |
+
+### ⚡ 快速环境切换
 
 使用提供的脚本快速切换环境：
 
 ```bash
-# 切换到开发环境
+# 🚀 切换到开发环境
 ./scripts/setup-env.sh development
 
-# 切换到QA环境
+# 🧪 切换到QA环境
 ./scripts/setup-env.sh qa
 
-# 切换到生产环境
+# 🎆 切换到生产环境
 ./scripts/setup-env.sh production
 ```
 
-## 安装与运行
+> 💡 **小贴士**：脚本会自动复制对应的环境配置文件到 `.env` 并设置 `NODE_ENV` 环境变量。
 
-### 1. 安装依赖
+## 🚀 安装与运行
+
+### 📋 1. 安装依赖
 
 ```bash
+# 克隆项目（如果还未克隆）
+git clone <repository-url>
+cd nutriguide-backend
+
+# 安装 Node.js 依赖
 npm install
+
+# 或者使用 Yarn
+yarn install
 ```
 
-### 2. 环境配置
+### ⚙️ 2. 环境配置
 
 选择并设置目标环境：
 
 ```bash
-# 设置开发环境
+# 🚀 设置开发环境（推荐）
+chmod +x scripts/setup-env.sh
 ./scripts/setup-env.sh development
 
-# 或者手动复制配置文件
+# 📋 手动复制配置文件（可选）
 cp .env.development .env
 ```
 
-### 3. 启动服务
+> 📝 **配置说明**：自动设置会复制环境配置文件到 `.env` 并设置 `NODE_ENV` 环境变量。
 
-#### 本地开发
+### 🔥 3. 启动服务
+
+#### 💻 本地开发方式（推荐）
 
 ```bash
-# 开发模式（自动重启）
+# 🚀 开发模式（自动重启 + 热重载）
 npm run start:dev
 
-# QA环境
+# 🧪 QA环境模式
 npm run start:qa
 
-# 生产模式
+# 🎆 生产模式
 npm run build
 npm run start:prod
 
-# 调试模式
+# 🔍 调试模式
 npm run start:debug
 ```
 
-#### Docker方式
+> ⚠️ **注意**：本地开发需要本地 MongoDB 服务。如果没有安装，请使用 Docker 方式。
+
+#### 🐳 Docker 方式（一键部署）
 
 ```bash
-# 开发环境
+# 🚀 开发环境（包含 MongoDB + Mongo Express）
 npm run docker:up:dev
 
-# QA环境
+# 🧪 QA环境
 npm run docker:up:qa
 
-# 生产环境
+# 🎆 生产环境
 npm run docker:up:prod
 
-# 停止服务
+# ⮝️ 停止所有服务
 npm run docker:down
 ```
 
-### 4. 访问服务
+> 💡 **Docker 优势**：自动配置 MongoDB、初始化数据库、并提供 Web 管理界面。
 
-#### 开发环境
-- API 服务: http://localhost:3000/api/v1
-- API 文档: http://localhost:3000/api/docs
-- 健康检查: http://localhost:3000/api/v1/health
-- MongoDB Admin: http://localhost:8081 (Docker方式)
+### 🌍 4. 访问服务
 
-#### QA环境
-- API 服务: http://localhost:3000/api/v1
-- MongoDB: localhost:27018
+启动成功后，你可以访问以下地址：
 
-#### 生产环境
-- API 服务: http://localhost:3000/api/v1
-- MongoDB: localhost:27019
-- Swagger文档在生产环境中被禁用
+#### 🚀 开发环境
+- 🎯 **API 服务**: http://localhost:3000/api/v1
+- 📚 **API 文档**: http://localhost:3000/api/docs
+- ❤️ **健康检查**: http://localhost:3000/health
+- 🖳️ **MongoDB Admin**: http://localhost:8081 (Docker方式)
+  - 用户名: `admin`
+  - 密码: `admin123`
 
-## 开发命令
+#### 🧪 QA环境
+- 🎯 **API 服务**: http://localhost:3000/api/v1
+- 📚 **API 文档**: http://localhost:3000/api/docs
+- 🖳️ **MongoDB**: localhost:27018 (Docker方式)
+
+#### 🎆 生产环境
+- 🎯 **API 服务**: http://localhost:3000/api/v1
+- 🖳️ **MongoDB**: localhost:27019 (Docker方式)
+- ❌ **Swagger文档**: 在生产环境中被禁用
+
+> 🐍 **快速测试**：使用 `curl http://localhost:3000/health` 检查服务状态
+
+## 🛠️ 开发命令
+
+### 💻 基本命令
 
 ```bash
-# 开发模式启动
+# 🚀 开发模式启动（热重载）
 npm run start:dev
 
-# 构建项目
+# 🔨 构建项目
 npm run build
 
-# 代码格式化
+# ✨ 代码格式化
 npm run format
 
-# 代码检查
+# 🔍 代码检查
 npm run lint
-
-# 运行测试
-npm run test
-
-# 运行测试并生成覆盖率报告
-npm run test:cov
-
-# 运行 E2E 测试
-npm run test:e2e
-
-# 监听模式测试
-npm run test:watch
 ```
 
-## Docker命令
+### 🧪 测试命令
 
 ```bash
-# 构建镜像
+# 🎯 运行单元测试
+npm run test
+
+# 📊 运行测试并生成覆盖率报告
+npm run test:cov
+
+# 🚀 运行 E2E 测试
+npm run test:e2e
+
+# 👀 监听模式测试（自动重新运行）
+npm run test:watch
+
+# 🔍 调试模式测试
+npm run test:debug
+```
+
+### 📋 数据库管理命令
+
+```bash
+# 🌱 播种测试数据（开发环境）
+npm run db:seed
+
+# 🗑️ 清空并重新播种
+npm run db:seed:clear
+
+# 🧪 QA环境播种
+npm run db:seed:qa
+
+# 🔄 数据库恢复（从备份恢复数据）
+npm run db:restore          # 开发环境
+npm run db:restore:qa       # QA环境
+npm run db:restore:prod     # 生产环境
+
+# 📊 集合名称标准化
+npm run db:normalize development
+```
+
+## 🐳 Docker 命令
+
+### 🔨 构建命令
+
+```bash
+# 🛠️ 构建基本镜像
 npm run docker:build
 
-# 构建特定环境镜像
+# 🚀 构建开发环境镜像
 npm run docker:build:dev
+
+# 🧪 构建 QA环境镜像
 npm run docker:build:qa
+
+# 🎆 构建生产环境镜像
 npm run docker:build:prod
-
-# 启动服务（不同环境）
-npm run docker:up:dev
-npm run docker:up:qa
-npm run docker:up:prod
-
-# 停止所有服务
-npm run docker:down
 ```
+
+### 🚀 服务管理
+
+```bash
+# 🟢 启动服务（不同环境）
+npm run docker:up:dev      # 开发环境 + MongoDB + Mongo Express
+npm run docker:up:qa       # QA环境 + MongoDB
+npm run docker:up:prod     # 生产环境 + MongoDB
+
+# ⮝️ 停止所有服务
+npm run docker:down
+
+# 🔄 查看服务状态
+docker-compose -f docker-compose.dev.yml ps
+
+# 📝 查看服务日志
+docker-compose -f docker-compose.dev.yml logs -f
+```
+
+### 🌱 数据播种（Docker）
+
+```bash
+# 🌱 Docker 环境下播种数据
+npm run docker:seed
+
+# 🗑️ Docker 环境下清空并播种
+npm run docker:seed:clear
+```
+
+> 💡 **Docker Compose 优势**：
+> - 自动网络配置
+> - 数据持久化存储
+> - 环境隔离和一致性
+> - 一键启动全套服务
 
 ## 数据库配置
 
@@ -497,14 +667,39 @@ docker-compose -f docker-compose.prod.yml logs -f
 - **健康检查**: `/api/v1/health` 端点提供服务健康状态
 - **Docker健康检查**: 容器内置健康检查机制
 
-## 贡献指南
+## 📎 项目状态验证
 
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 遵循代码规范和环境配置
-4. 提交更改 (`git commit -m 'feat: add amazing feature'`)
-5. 推送到分支 (`git push origin feature/amazing-feature`)
-6. 创建 Pull Request
+### ✅ 开发环境验证通过
+
+🎉 **恭喜！项目已成功运行** 🎉
+
+- ✅ **服务状态**: 正常运行
+- ✅ **数据库连接**: MongoDB 成功连接
+- ✅ **API 文档**: Swagger 可访问
+- ✅ **环境配置**: 开发环境已配置
+- ✅ **Docker 服务**: 容器化部署成功
+
+### 🔗 快速访问链接
+
+| 服务 | 地址 | 状态 |
+|------|-----|------|
+| 🎯 API 服务 | http://localhost:3000/api/v1 | ✅ 正常 |
+| 📚 API 文档 | http://localhost:3000/api/docs | ✅ 可用 |
+| ❤️ 健康检查 | http://localhost:3000/health | ✅ 正常 |
+| 🖳️ 数据库管理 | http://localhost:8081 | ✅ 可用 |
+
+### 🔍 快速测试
+
+```bash
+# 检查服务状态
+curl http://localhost:3000/health
+
+# 获取API信息
+curl http://localhost:3000/api-info
+
+# 查看Swagger文档
+open http://localhost:3000/api/docs
+```
 
 ## 故障排除
 
@@ -540,370 +735,3 @@ docker-compose -f docker-compose.prod.yml logs -f
 ## 联系方式
 
 如有问题，请联系开发团队。
-
-## 🚀 Features
-
-### Core Modules
-
-#### 👤 User Management
-- Complete user CRUD operations
-- User profile management with health metrics
-- Email verification system
-- User statistics and analytics
-- Soft delete with restore functionality
-
-#### 🔐 Authentication & Authorization
-- **Multiple Login Methods:**
-  - Email/Username + Password
-  - Phone + Password
-  - Phone + SMS Code (with auto-registration)
-  - Phone One-Tap Login (mobile SDK integration)
-  - Social Login (WeChat, Apple, Google, Facebook)
-- **JWT-based Authentication:**
-  - Access tokens (1 hour expiry)
-  - Refresh tokens (30-60 days based on "remember me")
-  - Device-specific token management
-- **SMS Verification:**
-  - Rate limiting (1 SMS per minute)
-  - 6-digit codes with 5-minute expiry
-  - Multiple verification types (login, registration, etc.)
-- **Security Features:**
-  - Password hashing with bcrypt (12 salt rounds)
-  - Token revocation and logout from all devices
-  - User account status validation
-
-### 🏗️ Technical Features
-
-- **Environment Configuration:** Development, QA, and Production setups
-- **Database:** MongoDB with Mongoose ODM
-- **API Documentation:** Swagger/OpenAPI integration
-- **Testing:** Comprehensive unit tests with Jest
-- **Docker Support:** Multi-environment containerization
-- **Code Quality:** ESLint, Prettier, and TypeScript strict mode
-- **Error Handling:** Global exception filters with standardized responses
-
-## 📋 Prerequisites
-
-- Node.js 18+ 
-- MongoDB 5.0+
-- npm or yarn
-
-## 🛠️ Installation
-
-### 1. Clone the repository
-```bash
-git clone <repository-url>
-cd nutriguide-backend
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Environment Configuration
-
-Create environment files based on your needs:
-
-```bash
-# Development
-cp .env.example .env.development
-
-# QA
-cp .env.example .env.qa
-
-# Production  
-cp .env.example .env.production
-```
-
-**Required Environment Variables:**
-```env
-NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/nutriguide_dev
-JWT_SECRET=your-super-secret-jwt-key-here
-JWT_EXPIRES_IN=1h
-PORT=3000
-```
-
-### 4. Database Setup
-
-#### Option A: Using Docker (Recommended)
-```bash
-# Development environment
-docker-compose -f docker-compose.dev.yml up -d
-
-# QA environment
-docker-compose -f docker-compose.qa.yml up -d
-
-# Production environment
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-#### Option B: Local MongoDB
-```bash
-# Initialize MongoDB with indexes and collections
-chmod +x scripts/init-local-mongodb.sh
-./scripts/init-local-mongodb.sh development
-
-# Or manually start MongoDB and the application will create collections
-mongod --dbpath /path/to/your/db
-```
-
-## 🚀 Running the Application
-
-### Development Mode
-```bash
-# With hot reload
-npm run start:dev
-
-# With Docker
-docker-compose -f docker-compose.dev.yml up
-```
-
-### Production Mode
-```bash
-# Build and start
-npm run build
-npm run start:prod
-
-# With Docker
-docker-compose -f docker-compose.prod.yml up
-```
-
-## 🧪 Testing
-
-```bash
-# Unit tests
-npm test
-
-# Test coverage
-npm run test:cov
-
-# Watch mode
-npm run test:watch
-```
-
-## 📚 API Documentation
-
-Once the application is running, access the Swagger documentation at:
-- Development: http://localhost:3000/api/docs
-- QA: http://localhost:3001/api/docs  
-- Production: http://localhost:3002/api/docs
-
-### Authentication Endpoints
-
-#### Registration Methods
-- `POST /auth/register/phone` - **Register with phone number only (recommended)**
-- `POST /auth/register` - Traditional registration (all fields required)
-
-#### Login Methods
-- `POST /auth/login/email` - Email/Username + Password
-- `POST /auth/login/phone` - Phone + Password
-- `POST /auth/login/sms` - Phone + SMS Code
-- `POST /auth/login/one-tap` - Phone One-Tap (Mobile SDK)
-- `POST /auth/login/social` - Social Login (WeChat, Apple, etc.)
-
-#### SMS Verification
-- `POST /auth/sms/send` - Send SMS verification code
-- `POST /auth/sms/verify` - Verify SMS code
-
-#### 开发环境特殊功能
-
-**万能验证码**: 在开发环境中，可以使用 `123456` 作为万能验证码，适用于所有SMS验证场景，无需真实发送短信，节省开发成本。
-
-- **万能验证码**: `123456`
-- **适用环境**: 仅 `NODE_ENV=development`
-- **支持场景**: 登录、注册、密码重置、手机验证
-- **详细说明**: 查看 [开发环境特殊功能文档](docs/DEVELOPMENT_FEATURES.md)
-
-使用示例：
-```bash
-# 发送验证码（开发环境会提示可使用万能验证码）
-curl -X POST http://localhost:3000/api/v1/auth/sms/send \
-  -H "Content-Type: application/json" \
-  -d '{"phone": "13800138888", "type": "login"}'
-
-# 使用万能验证码登录
-curl -X POST http://localhost:3000/api/v1/auth/login/sms \
-  -H "Content-Type: application/json" \
-  -d '{"phone": "13800138888", "smsCode": "123456", "deviceId": "web-browser"}'
-```
-
-#### 📱 手机号注册 (推荐方式)
-
-**新的简化注册流程**: 用户只需要提供手机号即可完成注册，其他信息都是可选的。
-
-```bash
-# 1. 发送注册验证码
-curl -X POST http://localhost:3000/api/v1/auth/sms/send \
-  -H "Content-Type: application/json" \
-  -d '{"phone": "13900000001", "type": "register"}'
-
-# 2. 手机号注册（最简方式）
-curl -X POST http://localhost:3000/api/v1/auth/register/phone \
-  -H "Content-Type: application/json" \
-  -d '{
-    "phone": "13900000001",
-    "smsCode": "123456"
-  }'
-
-# 3. 手机号注册（包含可选信息）
-curl -X POST http://localhost:3000/api/v1/auth/register/phone \
-  -H "Content-Type: application/json" \
-  -d '{
-    "phone": "13900000001",
-    "smsCode": "123456",
-    "firstName": "张",
-    "lastName": "三",
-    "email": "zhangsan@example.com",
-    "password": "MySecurePass123!"
-  }'
-```
-
-**字段说明**:
-- ✅ **必须字段**: `phone`, `smsCode`
-- 🔧 **可选字段**: `email`, `username`, `password`, `firstName`, `lastName`, `birthDate`, `gender`, `height`, `weight`, `activityLevel`
-- 🎯 **自动生成**: 如果未提供，系统会自动生成 `username`、`email` 和随机 `password`
-
-#### 默认测试用户
-
-系统提供了以下默认测试用户，详细信息请查看 [默认用户文档](docs/DEFAULT_USERS.md)：
-
-- **管理员**: `admin@nutriguide.com` / `admin` / `Password123!` / `13800138000`
-- **测试用户1**: `john.doe@example.com` / `johndoe` / `Password123!` / `13800138001`
-- **测试用户2**: `jane.smith@example.com` / `janesmith` / `Password123!` / `13800138002`
-- **测试用户3**: `test.user@example.com` / `testuser` / `Password123!` / `13800138003`
-
-#### 改进的错误处理
-
-认证API现在提供更具体的错误信息：
-
-- `AUTH_001`: 用户不存在
-- `AUTH_002`: 密码错误
-- `AUTH_003`: 账户已停用
-- `AUTH_004`: 邮箱未验证
-- `AUTH_005`: 验证码无效或已过期
-- `AUTH_006`: 短信发送频率限制
-- `AUTH_007`: 邮箱已被注册
-- `AUTH_008`: 用户名已被占用
-- `AUTH_009`: 手机号已被注册
-- `AUTH_010`: 刷新令牌无效
-- `AUTH_011`: 第三方登录失败
-- `AUTH_012`: 一键登录失败
-
-错误响应示例：
-```json
-{
-  "statusCode": 401,
-  "message": "Invalid password",
-  "error": "INVALID_PASSWORD",
-  "details": "The provided password is incorrect",
-  "code": "AUTH_002",
-  "timestamp": "2024-01-15T10:30:00.000Z"
-}
-```
-
-#### Token Management
-- `POST /auth/refresh` - Refresh access token
-- `POST /auth/logout` - Logout (revoke tokens)
-- `GET /auth/profile` - Get current user profile
-
-#### User Management
-- `GET /users` - List users (paginated)
-- `POST /users` - Create user
-- `GET /users/:id` - Get user by ID
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Soft delete user
-- `POST /users/:id/restore` - Restore deleted user
-- `GET /users/statistics` - User statistics
-
-## 🏗️ Project Structure
-
-```
-src/
-├── app.module.ts              # Main application module
-├── main.ts                    # Application entry point
-├── common/                    # Shared utilities
-│   ├── dto/                   # Common DTOs (pagination, etc.)
-│   └── filters/               # Exception filters
-├── config/                    # Configuration files
-│   ├── database.config.ts     # Database configuration
-│   └── environment.config.ts  # Environment configuration
-└── modules/                   # Feature modules
-    ├── auth/                  # Authentication module
-    │   ├── dto/               # Auth DTOs
-    │   ├── guards/            # JWT guards
-    │   ├── interfaces/        # Auth interfaces
-    │   ├── schemas/           # MongoDB schemas
-    │   └── strategies/        # Passport strategies
-    └── user/                  # User management module
-        ├── dto/               # User DTOs
-        └── schemas/           # User schemas
-```
-
-## 🔧 Development Guidelines
-
-### Code Style
-- Follow the `.cursorrules` specifications
-- Use TypeScript strict mode
-- Implement comprehensive error handling
-- Write unit tests for all services and controllers
-- Use Swagger annotations for API documentation
-
-### Database Design
-- Use MongoDB with Mongoose ODM
-- Implement proper indexing for performance
-- Use soft deletes for user data
-- Store sensitive data securely (hashed passwords, etc.)
-
-### Authentication Flow
-1. User provides credentials via any supported method
-2. System validates credentials and user status
-3. JWT access token and refresh token are generated
-4. Tokens are returned to client
-5. Client uses access token for authenticated requests
-6. Refresh token used to obtain new access tokens
-
-## 🐳 Docker Configuration
-
-### Multi-Environment Setup
-- **Development:** Port 3000, MongoDB on 27017
-- **QA:** Port 3001, MongoDB on 27018  
-- **Production:** Port 3002, MongoDB on 27019
-
-### Services
-- **Backend API:** NestJS application
-- **MongoDB:** Database with initialization scripts
-- **Mongo Express:** Database admin UI (development only)
-
-## 📊 Monitoring & Logging
-
-- Structured logging with context information
-- Request/response logging
-- Error tracking with stack traces
-- Performance monitoring capabilities
-
-## 🔒 Security Features
-
-- JWT-based authentication
-- Password hashing with bcrypt
-- Rate limiting for SMS and API endpoints
-- Input validation and sanitization
-- CORS configuration
-- Environment-based security settings
-
-## 🤝 Contributing
-
-1. Follow the established code style and patterns
-2. Write comprehensive tests for new features
-3. Update documentation for API changes
-4. Use conventional commit messages
-5. Ensure all tests pass before submitting
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-**NutriGuide Backend** - Building the future of personalized nutrition tracking! 🥗✨ 
