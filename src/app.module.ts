@@ -15,6 +15,8 @@ import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { MealPlansModule } from './modules/meal-plans/meal-plans.module';
 import { RecipesModule } from './modules/recipes/recipes.module';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
+import { ShoppingListsModule } from './modules/shopping-lists/shopping-lists.module';
+import { EcommerceModule } from './modules/ecommerce/ecommerce.module';
 
 @Module({
     imports: [
@@ -48,6 +50,8 @@ import { RecommendationsModule } from './modules/recommendations/recommendations
         MealPlansModule,
         RecipesModule,
         RecommendationsModule,
+        ShoppingListsModule,
+        EcommerceModule,
     ],
     controllers: [AppController],
     providers: [

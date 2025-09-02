@@ -24,20 +24,20 @@ export class AppController {
   @Get('api-info')
   @ApiOperation({
     summary: 'Get API information',
-    description: 'Returns comprehensive API information including endpoints, authentication methods, and usage examples. Supports different output formats for command-line tools.'
+    description: 'Returns comprehensive API information including endpoints, authentication methods, usage examples, and environment details. Supports multiple output formats optimized for different development tools and command-line usage.'
   })
   @ApiQuery({
     name: 'format',
     required: false,
-    description: 'Output format (json, yaml, markdown, curl)',
-    enum: ['json', 'yaml', 'markdown', 'curl'],
+    description: 'Output format: json (default), yaml, markdown, curl (command examples), postman (collection)',
+    enum: ['json', 'yaml', 'markdown', 'curl', 'postman'],
     example: 'json'
   })
   @ApiQuery({
     name: 'section',
     required: false,
-    description: 'Specific section to return (endpoints, auth, examples, all)',
-    enum: ['endpoints', 'auth', 'examples', 'all'],
+    description: 'Specific section: all (default), endpoints, auth, examples, env (environment info)',
+    enum: ['all', 'endpoints', 'auth', 'examples', 'env'],
     example: 'all'
   })
   @ApiResponse({
@@ -50,14 +50,14 @@ export class AppController {
         message: { type: 'string', example: 'API information retrieved successfully' },
         data: {
           type: 'object',
-          description: 'API information in requested format'
+          description: 'API information in requested format - structure varies by format and section'
         }
       }
     }
   })
   getApiInfo(
-    @Query('format') format: 'json' | 'yaml' | 'markdown' | 'curl' = 'json',
-    @Query('section') section: 'endpoints' | 'auth' | 'examples' | 'all' = 'all'
+    @Query('format') format: 'json' | 'yaml' | 'markdown' | 'curl' | 'postman' = 'json',
+    @Query('section') section: 'all' | 'endpoints' | 'auth' | 'examples' | 'env' = 'all'
   ): object {
     return this.appService.getApiInfo(format, section);
   }
